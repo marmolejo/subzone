@@ -10,10 +10,10 @@
 namespace net {
 
 UDPClientSocket::UDPClientSocket(DatagramSocket::BindType bind_type,
-                                 const RandIntCallback& rand_int_cb,
+                                 const RandIntCallback& rand_int_cb /*,
                                  net::NetLog* net_log,
-                                 const net::NetLog::Source& source)
-    : socket_(bind_type, rand_int_cb, net_log, source) {
+                                 const net::NetLog::Source& source*/)
+    : socket_(bind_type, rand_int_cb/*, net_log, source*/) {
 }
 
 UDPClientSocket::~UDPClientSocket() {
@@ -25,13 +25,13 @@ int UDPClientSocket::Connect(const IPEndPoint& address) {
     return rv;
   return socket_.Connect(address);
 }
-
+/*
 int UDPClientSocket::Read(IOBuffer* buf,
                           int buf_len,
                           const CompletionCallback& callback) {
   return socket_.Read(buf, buf_len, callback);
 }
-
+*/
 int UDPClientSocket::Write(IOBuffer* buf,
                           int buf_len,
                           const CompletionCallback& callback) {
@@ -41,7 +41,7 @@ int UDPClientSocket::Write(IOBuffer* buf,
 void UDPClientSocket::Close() {
   socket_.Close();
 }
-
+/*
 int UDPClientSocket::GetPeerAddress(IPEndPoint* address) const {
   return socket_.GetPeerAddress(address);
 }
@@ -61,5 +61,5 @@ int UDPClientSocket::SetSendBufferSize(int32 size) {
 const BoundNetLog& UDPClientSocket::NetLog() const {
   return socket_.NetLog();
 }
-
+*/
 }  // namespace net

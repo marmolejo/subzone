@@ -37,13 +37,13 @@ class SecureHashSHA256NSS : public SecureHash {
                static_cast<unsigned int>(len));
   }
 
-  virtual bool Serialize(Pickle* pickle) override;
-  virtual bool Deserialize(PickleIterator* data_iterator) override;
+  //virtual bool Serialize(Pickle* pickle) override;
+  //virtual bool Deserialize(PickleIterator* data_iterator) override;
 
  private:
   SHA256Context ctx_;
 };
-
+/*
 bool SecureHashSHA256NSS::Serialize(Pickle* pickle) {
   if (!pickle)
     return false;
@@ -80,7 +80,7 @@ bool SecureHashSHA256NSS::Deserialize(PickleIterator* data_iterator) {
 
   return true;
 }
-
+*/
 }  // namespace
 
 SecureHash* SecureHash::Create(Algorithm algorithm) {

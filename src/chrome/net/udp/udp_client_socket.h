@@ -18,25 +18,25 @@ class BoundNetLog;
 class NET_EXPORT_PRIVATE UDPClientSocket : public DatagramClientSocket {
  public:
   UDPClientSocket(DatagramSocket::BindType bind_type,
-                  const RandIntCallback& rand_int_cb,
+                  const RandIntCallback& rand_int_cb /*,
                   net::NetLog* net_log,
-                  const net::NetLog::Source& source);
+                  const net::NetLog::Source& source*/);
   ~UDPClientSocket() override;
 
   // DatagramClientSocket implementation.
   int Connect(const IPEndPoint& address) override;
-  int Read(IOBuffer* buf,
-           int buf_len,
-           const CompletionCallback& callback) override;
+  //int Read(IOBuffer* buf,
+  //         int buf_len,
+  //         const CompletionCallback& callback) override;
   int Write(IOBuffer* buf,
             int buf_len,
             const CompletionCallback& callback) override;
   void Close() override;
-  int GetPeerAddress(IPEndPoint* address) const override;
-  int GetLocalAddress(IPEndPoint* address) const override;
-  int SetReceiveBufferSize(int32 size) override;
-  int SetSendBufferSize(int32 size) override;
-  const BoundNetLog& NetLog() const override;
+  //int GetPeerAddress(IPEndPoint* address) const override;
+  //int GetLocalAddress(IPEndPoint* address) const override;
+  //int SetReceiveBufferSize(int32 size) override;
+  //int SetSendBufferSize(int32 size) override;
+  //const BoundNetLog& NetLog() const override;
 
  private:
   UDPSocket socket_;

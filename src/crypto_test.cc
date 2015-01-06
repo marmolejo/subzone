@@ -17,12 +17,19 @@ using namespace net;
 // darknet handshake test. Pick a nonce, ECDH keypair, iv and padding length
 
 const size_t kBlockSize = 32;
-const size_t kKeyLength = 32;
 const size_t kNonceLength = 16;
-const size_t kECPrivateKeyLength = 121;
+
+const uint8_t kVersion = 1;
+const uint8_t kNegType = 9;
+const uint8_t kPhase   = 0;
 
 const char i1_identity[] = "gAXIdY1ZIY5imCwcISPDmkUCfEf0iT463+k2PkAh8Cw";
 const char my_identity[] = "tMh1zG3Vy+c+dfeGqPRn+Df9Ich0K89U6SiAci2hgPk";
+
+const size_t kMaxFreenetPacketSize = 1232;
+const size_t kMinPaddingLength = 100;
+
+const uint16 kPort = 6991;
 
 std::string hexdump(std::string &in)
 {
@@ -71,11 +78,11 @@ int X509_PUBKEY_set(X509_PUBKEY **x, EVP_PKEY *pkey);
 EVP_PKEY *X509_PUBKEY_get(X509_PUBKEY *key);
 }
 
+CompletionCallback cc;
+
 // Loop until |msg| has been written to the socket or until an
 // error occurs.
 int WriteSocket(UDPClientSocket* socket, std::string msg) {
-  TestCompletionCallback callback;
-
   int length = static_cast<int>(msg.length());
   scoped_refptr<StringIOBuffer> io_buffer(new StringIOBuffer(msg));
   scoped_refptr<DrainableIOBuffer> buffer(
@@ -84,9 +91,9 @@ int WriteSocket(UDPClientSocket* socket, std::string msg) {
   int bytes_sent = 0;
   while (buffer->BytesRemaining()) {
     int rv = socket->Write(
-        buffer.get(), buffer->BytesRemaining(), callback.callback());
+        buffer.get(), buffer->BytesRemaining(), cc);
     if (rv == ERR_IO_PENDING)
-      rv = callback.WaitForResult();
+      rv = 0; //callback.WaitForResult();
     if (rv <= 0)
       return bytes_sent > 0 ? bytes_sent : rv;
     bytes_sent += rv;
@@ -113,7 +120,6 @@ int main() {
   std::string message1(hash_nonce);
 
   // Create a ECDH secp256r1 keypair
-  //base::StringPiece ecpriv64(kECPrivateKey64);
   std::string key(net::P256KeyExchange::NewPrivateKey());
   const uint8* keyp = reinterpret_cast<const uint8*>(key.data());
   crypto::ScopedEC_KEY private_key(d2i_ECPrivateKey(nullptr, &keyp,
@@ -123,34 +129,37 @@ int main() {
     return 0;
   }
 
+  // Obtain the public key in X.509 network format
   EVP_PKEY pkey;
+  bzero (&pkey, sizeof(pkey));
   EVP_PKEY_set1_EC_KEY(&pkey, private_key.get());
-  unsigned char *d = (unsigned char*) malloc(91);
+  int d_size = d_size = i2d_PUBKEY(&pkey, NULL);
+  unsigned char d[d_size+20];
   unsigned char *p = d;
   i2d_PUBKEY(&pkey, &p);
 
-  //base::Base64Decode(ecpriv64, &node_private);
-  //scoped_ptr<net::P256KeyExchange> node(net::P256KeyExchange::New(node_private));
   message1.append(reinterpret_cast<const char *>(d), 91);
 
   // Add version, negType and phase
-  const char pr[] = { 1, 9, 0 };
+  const char pr[] = { kVersion, kNegType, kPhase };
   std::string preface(pr, 3);
   message1.insert(0, preface);
 
+  // payload is ready
   std::cout << "message1: " << std::endl;
   std::cout << hexdump(message1);
 
-  // 256-bit IV
+  // get a 256-bit IV
   std::string iv;
   crypto::RandBytes(WriteInto(&iv, kBlockSize + 1), kBlockSize);
 
   // sha256 of payload
   auto hash(crypto::SHA256HashString(message1));
-  auto hash_iv(crypto::SHA256HashString(iv));
-  size_t prePaddingLength(iv.length() + hash_iv.length() + 2 + message1.length());
-  const size_t kMaxPacketSize = 1232;
-  auto paddingLength(base::RandUint64() % std::min(100UL, kMaxPacketSize - prePaddingLength));
+
+  // calculate final length
+  size_t prePaddingLength(iv.length() + hash.length() + 2 + message1.length());
+  auto paddingLength(base::RandUint64() % std::min(kMinPaddingLength, 
+    kMaxFreenetPacketSize - prePaddingLength));
 
   // create simmetric key
   std::string i1_id;
@@ -161,22 +170,23 @@ int main() {
   base::Base64Decode(my_identity, &my_id);
   auto my_hash(crypto::SHA256HashString(crypto::SHA256HashString(my_id)));
   
-  char out_key[32];
+  char out_key[kBlockSize];
   for (int i=0; i<hash_i1.length(); i++) out_key[i] = hash_i1[i] ^ my_hash[i];
   
-  // encrypt hash
   crypto::Rijndael rijndael;
-  rijndael.MakeKey(out_key, iv.c_str(), 32, 32);
+  rijndael.MakeKey(out_key, iv.c_str(), kBlockSize, kBlockSize);
   
+  // first, initial vector
   std::string data(iv);
   
-  char out[32];
-  bzero(out, 32);
-  rijndael.Encrypt(hash.c_str(), out, 32, rijndael.CFB);
-  data.append(out, 32);
+  // encrypt hash
+  char out[kBlockSize];
+  bzero(out, kBlockSize);
+  rijndael.Encrypt(hash.c_str(), out, kBlockSize, rijndael.CFB);
+  data.append(out, kBlockSize);
   
   // encrypt length
-  bzero(out,32);
+  bzero(out,kBlockSize);
   int length = message1.length();
   uint8_t L = (uint8_t)length>>8; 
   rijndael.Encrypt(reinterpret_cast<const char *>(&L), out, 1, rijndael.CFB);
@@ -199,16 +209,14 @@ int main() {
   std::cout << "data: " << std::endl;
   std::cout << hexdump(data);
 
-  const uint16 kPort = 6991;
-
   // Setup the client.
   IPEndPoint server_address;
   CreateUDPAddress("127.0.0.1", kPort, &server_address);
   scoped_ptr<UDPClientSocket> client(
       new UDPClientSocket(DatagramSocket::DEFAULT_BIND,
-                          RandIntCallback(),
+                          RandIntCallback() /*,
                           nullptr,
-                          NetLog::Source()));
+                          NetLog::Source()*/));
   client->Connect(server_address);
 
   // Client sends to the server.

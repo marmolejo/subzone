@@ -49,7 +49,7 @@ void RandBytes(void* output, size_t output_length) {
   const int urandom_fd = g_urandom_fd.Pointer()->fd();
   const bool success =
       ReadFromFD(urandom_fd, static_cast<char*>(output), output_length);
-  CHECK(success);
+  //CHECK(success);
 }
 
 int GetUrandomFD(void) {
