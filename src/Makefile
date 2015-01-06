@@ -1,5 +1,5 @@
 CXX	:= c++
-FLAGS := -O3 -flto -fno-exceptions -fno-rtti
+FLAGS := -O3 -flto -fno-exceptions -fno-rtti -Wall
 CXXFLAGS = -std=c++14 $(FLAGS)
 CFLAGS = $(FLAGS)
 LDFLAGS  := -flto

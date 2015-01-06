@@ -24,9 +24,7 @@ namespace net {
 class NET_EXPORT UDPSocketLibevent : public base::NonThreadSafe {
  public:
   UDPSocketLibevent(DatagramSocket::BindType bind_type,
-                    const RandIntCallback& rand_int_cb/*,
-                    net::NetLog* net_log,
-                    const net::NetLog::Source& source*/);
+                    const RandIntCallback& rand_int_cb);
   virtual ~UDPSocketLibevent();
 
   // Opens the socket.
@@ -100,18 +98,8 @@ class NET_EXPORT UDPSocketLibevent : public base::NonThreadSafe {
              const IPEndPoint& address,
              const CompletionCallback& callback);
 
-  // Sets the receive buffer size (in bytes) for the socket.
-  // Returns a net error code.
-  //int SetReceiveBufferSize(int32 size);
-
-  // Sets the send buffer size (in bytes) for the socket.
-  // Returns a net error code.
-  //int SetSendBufferSize(int32 size);
-
   // Returns true if the socket is already connected or bound.
   bool is_connected() const { return is_connected_; }
-
-  //const BoundNetLog& NetLog() const { return net_log_; }
 
   // Sets corresponding flags in |socket_options_| to allow the socket
   // to share the local address to which the socket will be bound with
@@ -295,8 +283,6 @@ class NET_EXPORT UDPSocketLibevent : public base::NonThreadSafe {
 
   // External callback; called when write is complete.
   CompletionCallback write_callback_;
-
-  //BoundNetLog net_log_;
 
   DISALLOW_COPY_AND_ASSIGN(UDPSocketLibevent);
 };
