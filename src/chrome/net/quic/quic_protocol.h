@@ -19,7 +19,6 @@
 #include "base/containers/hash_tables.h"
 #include "base/logging.h"
 #include "base/strings/string_piece.h"
-#include "net/base/int128.h"
 #include "net/base/ip_endpoint.h"
 #include "net/base/net_export.h"
 #include "net/quic/iovector.h"

@@ -11,7 +11,6 @@
 
 #include "base/basictypes.h"
 #include "base/logging.h"
-#include "net/base/iovec.h"
 #include "net/base/net_export.h"
 
 namespace net {

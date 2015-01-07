@@ -18,8 +18,6 @@
 #define ENABLE_NON_THREAD_SAFE 0
 #endif
 
-#include "base/threading/non_thread_safe_impl.h"
-
 namespace base {
 
 // Do nothing implementation of NonThreadSafe, for release mode.

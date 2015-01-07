@@ -42,9 +42,6 @@ namespace net {
 class NET_EXPORT NetLog {
  public:
   enum EventType {
-#define EVENT_TYPE(label) TYPE_ ## label,
-#include "net/base/net_log_event_type_list.h"
-#undef EVENT_TYPE
     EVENT_COUNT
   };
 
@@ -58,9 +55,6 @@ class NET_EXPORT NetLog {
 
   // The "source" identifies the entity that generated the log message.
   enum SourceType {
-#define SOURCE_TYPE(label) SOURCE_ ## label,
-#include "net/base/net_log_source_type_list.h"
-#undef SOURCE_TYPE
     SOURCE_COUNT
   };
 

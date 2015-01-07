@@ -44,7 +44,6 @@
 #include "base/strings/stringprintf.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/sys_byteorder.h"
-#include "base/values.h"
 #include "url/gurl.h"
 #include "url/url_canon.h"
 #include "url/url_canon_ip.h"
@@ -53,7 +52,6 @@
 #include "net/base/net_module.h"
 #include "net/base/registry_controlled_domains/registry_controlled_domain.h"
 #include "net/grit/net_resources.h"
-#include "net/http/http_content_disposition.h"
 
 #if defined(OS_ANDROID)
 #include "net/android/network_library.h"

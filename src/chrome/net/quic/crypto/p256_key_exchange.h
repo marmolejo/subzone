@@ -13,7 +13,6 @@
 #include "net/quic/crypto/key_exchange.h"
 
 #if defined(USE_OPENSSL)
-#include "crypto/openssl_util.h"
 #include "crypto/scoped_openssl_types.h"
 #else
 #include "crypto/ec_private_key.h"

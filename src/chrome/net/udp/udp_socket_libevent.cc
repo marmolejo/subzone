@@ -15,8 +15,6 @@
 #include "base/callback.h"
 #include "base/logging.h"
 #include "base/message_loop/message_loop.h"
-#include "base/metrics/sparse_histogram.h"
-#include "base/metrics/stats_counters.h"
 #include "base/posix/eintr_wrapper.h"
 #include "base/rand_util.h"
 #include "net/base/io_buffer.h"
@@ -24,9 +22,7 @@
 #include "net/base/net_errors.h"
 #include "net/base/net_log.h"
 #include "net/base/net_util.h"
-#include "net/base/network_activity_monitor.h"
 #include "net/socket/socket_descriptor.h"
-#include "net/udp/udp_net_log_parameters.h"
 
 
 namespace net {
