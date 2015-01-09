@@ -11,6 +11,10 @@
 #include "net/base/net_export.h"
 #include "net/quic/crypto/crypto_protocol.h"
 
+#include "crypto/scoped_openssl_types.h"
+
+using KeyPair = std::pair<EC_KEY *, const uint8 *>;
+
 namespace net {
 
 class QuicRandom;
@@ -24,7 +28,7 @@ class NET_EXPORT_PRIVATE KeyExchange {
   // NewKeyPair generates a new public, private key pair. The caller takes
   // ownership of the return value. (This is intended for servers that need to
   // generate forward-secure keys.)
-  virtual KeyExchange* NewKeyPair(QuicRandom* rand) const = 0;
+  virtual KeyPair NewKeyPair(QuicRandom* rand) const = 0;
 
   // CalculateSharedKey computes the shared key between the local private key
   // (which is implicitly known by a KeyExchange object) and a public value

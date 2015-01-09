@@ -7,6 +7,7 @@
 
 #include "net/udp/udp_client_socket.h"
 #include "net/base/test_completion_callback.h"
+#include "net/p256_key_exchange_x509.h"
 
 using namespace net;
 
@@ -119,26 +120,8 @@ int main() {
   std::string hash_nonce(crypto::SHA256HashString(nonce));
   std::string message1(hash_nonce);
 
-  // Create a ECDH secp256r1 keypair
-  std::string key(net::P256KeyExchange::NewPrivateKey());
-  const uint8* keyp = reinterpret_cast<const uint8*>(key.data());
-  crypto::ScopedEC_KEY private_key(d2i_ECPrivateKey(nullptr, &keyp,
-                                                    key.size()));
-  if (!private_key.get() || !EC_KEY_check_key(private_key.get())) {
-    DVLOG(1) << "Private key is invalid.";
-    return 0;
-  }
-
-  // Obtain the public key in X.509 network format
-  EVP_PKEY pkey;
-  bzero (&pkey, sizeof(pkey));
-  EVP_PKEY_set1_EC_KEY(&pkey, private_key.get());
-  int d_size = d_size = i2d_PUBKEY(&pkey, NULL);
-  unsigned char d[d_size+20];
-  unsigned char *p = d;
-  i2d_PUBKEY(&pkey, &p);
-
-  message1.append(reinterpret_cast<const char *>(d), 91);
+  net::P256KeyExchangeX509 ecdhe_key;
+  ecdhe_key.GetPublicX509().AppendToString(&message1);
 
   // Add version, negType and phase
   const char pr[] = { kVersion, kNegType, kPhase };

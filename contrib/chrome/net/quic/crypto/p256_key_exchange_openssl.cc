@@ -15,18 +15,19 @@ using std::string;
 
 namespace net {
 
-P256KeyExchange::P256KeyExchange(EC_KEY* private_key, const uint8* public_key)
-    : private_key_(private_key) {
-  memcpy(public_key_, public_key, sizeof(public_key_));
+P256KeyExchange::P256KeyExchange(KeyPair key_pair)
+    : private_key_(key_pair.first) {
+  memcpy(public_key_, key_pair.second, sizeof(public_key_));
 }
 
 P256KeyExchange::~P256KeyExchange() {}
 
 // static
-P256KeyExchange* P256KeyExchange::New(StringPiece key) {
+KeyPair P256KeyExchange::New(StringPiece key) {
+  KeyPair kp(nullptr, nullptr);
   if (key.empty()) {
     DVLOG(1) << "Private key is empty";
-    return nullptr;
+    return kp;
   }
 
   const uint8* keyp = reinterpret_cast<const uint8*>(key.data());
@@ -34,7 +35,7 @@ P256KeyExchange* P256KeyExchange::New(StringPiece key) {
                                                     key.size()));
   if (!private_key.get() || !EC_KEY_check_key(private_key.get())) {
     DVLOG(1) << "Private key is invalid.";
-    return nullptr;
+    return kp;
   }
 
   uint8 public_key[kUncompressedP256PointBytes];
@@ -43,10 +44,12 @@ P256KeyExchange* P256KeyExchange::New(StringPiece key) {
                          POINT_CONVERSION_UNCOMPRESSED, public_key,
                          sizeof(public_key), nullptr) != sizeof(public_key)) {
     DVLOG(1) << "Can't get public key.";
-    return nullptr;
+    return kp;
   }
 
-  return new P256KeyExchange(private_key.release(), public_key);
+  kp.first = private_key.release();
+  kp.second = public_key;
+  return kp;
 }
 
 // static
@@ -71,7 +74,7 @@ string P256KeyExchange::NewPrivateKey() {
   return string(reinterpret_cast<char*>(private_key.get()), key_len);
 }
 
-KeyExchange* P256KeyExchange::NewKeyPair(QuicRandom* /*rand*/) const {
+KeyPair P256KeyExchange::NewKeyPair(QuicRandom* /*rand*/) const {
   // TODO(agl): avoid the serialisation/deserialisation in this function.
   const string private_value = NewPrivateKey();
   return P256KeyExchange::New(private_value);

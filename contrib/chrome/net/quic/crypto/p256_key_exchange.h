@@ -12,14 +12,10 @@
 #include "net/base/net_export.h"
 #include "net/quic/crypto/key_exchange.h"
 
-#if defined(USE_OPENSSL)
 #include "crypto/scoped_openssl_types.h"
-#else
-#include "crypto/ec_private_key.h"
-#include "crypto/scoped_nss_types.h"
-#endif
 
 namespace net {
+
 
 // P256KeyExchange implements a KeyExchange using elliptic-curve
 // Diffie-Hellman on NIST P-256.
@@ -29,7 +25,7 @@ class NET_EXPORT_PRIVATE P256KeyExchange : public KeyExchange {
 
   // New creates a new key exchange object from a private key. If
   // |private_key| is invalid, nullptr is returned.
-  static P256KeyExchange* New(base::StringPiece private_key);
+  static KeyPair New(base::StringPiece private_key);
 
   // |NewPrivateKey| returns a private key, suitable for passing to |New|.
   // If |NewPrivateKey| can't generate a private key, it returns an empty
@@ -37,13 +33,13 @@ class NET_EXPORT_PRIVATE P256KeyExchange : public KeyExchange {
   static std::string NewPrivateKey();
 
   // KeyExchange interface.
-  KeyExchange* NewKeyPair(QuicRandom* rand) const override;
+  KeyPair NewKeyPair(QuicRandom* rand) const override;
   bool CalculateSharedKey(const base::StringPiece& peer_public_value,
                           std::string* shared_key) const override;
   base::StringPiece public_value() const override;
   QuicTag tag() const override;
 
- private:
+ protected:
   enum {
     // A P-256 field element consists of 32 bytes.
     kP256FieldBytes = 32,
@@ -58,13 +54,13 @@ class NET_EXPORT_PRIVATE P256KeyExchange : public KeyExchange {
 #if defined(USE_OPENSSL)
   // P256KeyExchange takes ownership of |private_key|, and expects
   // |public_key| consists of |kUncompressedP256PointBytes| bytes.
-  P256KeyExchange(EC_KEY* private_key, const uint8* public_key);
+  P256KeyExchange(KeyPair key_pair);
 
   crypto::ScopedEC_KEY private_key_;
 #else
   // P256KeyExchange takes ownership of |key_pair|, and expects
   // |public_key| consists of |kUncompressedP256PointBytes| bytes.
-  P256KeyExchange(crypto::ECPrivateKey* key_pair, const uint8* public_key);
+  P256KeyExchange(KeyPair key_pair);
 
   scoped_ptr<crypto::ECPrivateKey> key_pair_;
 #endif

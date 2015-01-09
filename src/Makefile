@@ -1,35 +1,37 @@
 CXX	:= c++
 FLAGS := -O3 -flto -fno-exceptions -fno-rtti -Wall
-CXXFLAGS = -std=c++14 $(FLAGS)
+CXXFLAGS = -std=c++1z $(FLAGS)
 CFLAGS = $(FLAGS)
 LDFLAGS  := -flto
-INCLUDES := -Ichrome -Ichrome/out/Default/gen
+INCLUDES := -I../contrib/chrome -I../contrib/chrome/out/Default/gen -I../contrib -I..
 DEFINES  := -DUSE_OPENSSL -DNDEBUG
 LIBS     := -lpthread -levent -licuuc
 OBJECTS := \
-chrome/base/base64.o \
-chrome/base/callback_internal.o \
-chrome/base/files/file_util_posix.o \
-chrome/base/lazy_instance.o \
-chrome/base/memory/ref_counted.o \
-chrome/base/memory/weak_ptr.o \
-chrome/base/message_loop/message_pump_libevent.o \
-chrome/base/rand_util_posix.o \
-chrome/crypto/random.o \
-chrome/crypto/secure_hash_default.o \
-chrome/crypto/sha2.o \
-chrome/crypto/third_party/nss/sha512.o \
-chrome/net/base/io_buffer.o \
-chrome/net/base/ip_endpoint.o \
-chrome/net/base/net_util.o \
-chrome/net/quic/crypto/p256_key_exchange_openssl.o \
-chrome/net/socket/socket_descriptor.o \
-chrome/net/udp/udp_client_socket.o \
-chrome/net/udp/udp_socket_libevent.o \
-chrome/third_party/modp_b64/modp_b64.o \
-chrome/url/url_canon_internal.o \
-chrome/url/url_canon_ip.o \
-crypto/rijndael.o \
+../contrib/chrome/base/base64.o \
+../contrib/chrome/base/callback_internal.o \
+../contrib/chrome/base/files/file_util_posix.o \
+../contrib/chrome/base/lazy_instance.o \
+../contrib/chrome/base/memory/ref_counted.o \
+../contrib/chrome/base/memory/weak_ptr.o \
+../contrib/chrome/base/message_loop/message_pump_libevent.o \
+../contrib/chrome/base/rand_util_posix.o \
+../contrib/chrome/base/strings/string_piece.o \
+../contrib/chrome/crypto/random.o \
+../contrib/chrome/crypto/secure_hash_default.o \
+../contrib/chrome/crypto/sha2.o \
+../contrib/chrome/crypto/third_party/nss/sha512.o \
+../contrib/chrome/net/base/io_buffer.o \
+../contrib/chrome/net/base/ip_endpoint.o \
+../contrib/chrome/net/base/net_util.o \
+../contrib/chrome/net/quic/crypto/p256_key_exchange_openssl.o \
+../contrib/chrome/net/socket/socket_descriptor.o \
+../contrib/chrome/net/udp/udp_client_socket.o \
+../contrib/chrome/net/udp/udp_socket_libevent.o \
+../contrib/chrome/third_party/modp_b64/modp_b64.o \
+../contrib/chrome/url/url_canon_internal.o \
+../contrib/chrome/url/url_canon_ip.o \
+../contrib/crypto/rijndael.o \
+../net/p256_key_exchange_x509.o \
 crypto_test.o \
 /home/zeus/src/boringssl/out/crypto/libcrypto.a
 
@@ -44,4 +46,4 @@ crypto_test: $(OBJECTS)
 
 clean:
 	rm -f crypto_test *.o
-	find . -name *.o | xargs rm
+	find .. -name *.o | xargs rm
