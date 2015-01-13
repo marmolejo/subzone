@@ -5,8 +5,7 @@
 #define __RIJNDAEL_H__
 
 #include <cstring>
-
-using namespace std;
+#include "base/strings/string_piece.h"
 
 namespace crypto {
 
@@ -33,11 +32,12 @@ public:
 	//plaintext block with the previous ciphertext block, and encrypting the resulting value.
 	//In CFB mode a ciphertext block is obtained by encrypting the previous ciphertext block
 	//and xoring the resulting value with the plaintext.
-	enum { ECB=0, CBC=1, CFB=2 };
+	enum class OpMode { ECB, CBC, CFB };
 
 private:
-	enum { DEFAULT_BLOCK_SIZE=16 };
 	enum { MAX_BLOCK_SIZE=32, MAX_ROUNDS=14, MAX_KC=8, MAX_BC=8 };
+ 
+  static const int kDefaultBlockSize = 16;
 
 	//Auxiliary Functions
 	//Multiply two elements of GF(2^m)
@@ -61,23 +61,21 @@ private:
 
 public:
 	//CONSTRUCTOR
-	Rijndael();
+	Rijndael(base::StringPiece key, base::StringPiece iv,
+	         OpMode mode = OpMode::CFB);
 
 	//DESTRUCTOR
 	virtual ~Rijndael();
 
+private:
 	//Expand a user-supplied key material into a session key.
 	// key        - The 128/192/256-bit user-key to use.
-	// chain      - initial chain block for CBC and CFB modes.
-	// keylength  - 16, 24 or 32 bytes
-	// blockSize  - The block size in bytes of this Rijndael (16, 24 or 32 bytes).
-	bool MakeKey(char const* key, char const* chain, int keylength=DEFAULT_BLOCK_SIZE, int blockSize=DEFAULT_BLOCK_SIZE);
+  void MakeKey(char const* key);
 
-private:
 	//Auxiliary Function
 	bool Xor(char* buff, char const* chain, size_t n)
 	{
-		for(int i=0; i<n; i++)
+		for(size_t i=0; i<n; i++)
 			*(buff++) ^= *(chain++);
 
 		return true;
@@ -87,49 +85,31 @@ private:
 	//Rijndael's default block size (128-bit).
 	// in         - The plaintext
 	// result     - The ciphertext generated from a plaintext using the key
-	bool DefEncryptBlock(char const* in, char* result);
+	bool DefEncryptBlock(char const* in, char *result);
 
 	//Convenience method to decrypt exactly one block of plaintext, assuming
 	//Rijndael's default block size (128-bit).
 	// in         - The ciphertext.
 	// result     - The plaintext generated from a ciphertext using the session key.
-	bool DefDecryptBlock(char const* in, char* result);
+	bool DefDecryptBlock(char const* in, char *result);
 
 public:
 	//Encrypt exactly one block of plaintext.
 	// in           - The plaintext.
     // result       - The ciphertext generated from a plaintext using the key.
-    bool EncryptBlock(char const* in, char* result);
+    bool EncryptBlock(char const* in, char *result);
 	
 	//Decrypt exactly one block of ciphertext.
 	// in         - The ciphertext.
 	// result     - The plaintext generated from a ciphertext using the session key.
-	bool DecryptBlock(char const* in, char* result);
+	bool DecryptBlock(char const* in, char *result);
 
-	bool Encrypt(char const* in, char* result, size_t n, int iMode=ECB);
-	
-	bool Decrypt(char const* in, char* result, size_t n, int iMode=ECB);
+	bool Decrypt(base::StringPiece in, std::string& out);
+	bool Encrypt(base::StringPiece in, std::string& out);
 
-	//Get Key Length
-	int GetKeyLength()
-	{
-		if(false==m_bKeyInit) return 0;
-		return m_keylength;
-	}
-
-	//Block Size
-	int	GetBlockSize()
-	{
-		if(false==m_bKeyInit) return 0;
-		return m_blockSize;
-	}
-	
-	//Number of Rounds
-	int GetRounds()
-	{
-		if(false==m_bKeyInit) return 0;
-		return m_iROUNDS;
-	}
+	int GetKeyLength() const { return m_keylength; }
+	int	GetBlockSize() const { return m_blockSize; }
+	int GetRounds() const { return m_iROUNDS; }
 
 	void ResetChain()
 	{
@@ -138,7 +118,7 @@ public:
 
 public:
 	//Null chain
-	static char const* sm_chain0;
+	static char sm_chain0[];
 
 private:
 	static const int sm_alog[256];
@@ -162,16 +142,15 @@ private:
 	//Error Messages
 	static char const* sm_szErrorMsg1;
 	static char const* sm_szErrorMsg2;
-	//Key Initialization Flag
-	bool m_bKeyInit;
+
 	//Encryption (m_Ke) round key
 	int m_Ke[MAX_ROUNDS+1][MAX_BC];
 	//Decryption (m_Kd) round key
     int m_Kd[MAX_ROUNDS+1][MAX_BC];
-	//Key Length
+
 	int m_keylength;
-	//Block Size
-	int	m_blockSize;
+	int m_blockSize;
+
 	//Number of Rounds
 	int m_iROUNDS;
 	//Chain Block
@@ -183,6 +162,9 @@ private:
 	int tk[MAX_KC];
 	int a[MAX_BC];
 	int t[MAX_BC];
+
+	// mode of operation
+	OpMode mode_;
 };
 
 }  // namespace crypto

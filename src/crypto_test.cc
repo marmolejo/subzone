@@ -113,20 +113,19 @@ int main() {
   crypto::JustFastKeying jfk1;
 
   // payload is ready
-  std::string message1(jfk1.ToString());
+  std::string message1(jfk1);
 
   std::cout << "message1: " << std::endl;
   std::cout << hexdump(message1);
 
   // get a 256-bit IV
-  std::string iv;
-  crypto::RandBytes(WriteInto(&iv, kBlockSize + 1), kBlockSize);
+  crypto::Nonce iv(kBlockSize);
 
   // sha256 of payload
   auto hash(crypto::SHA256HashString(message1));
 
   // calculate final length
-  size_t prePaddingLength(iv.length() + hash.length() + 2 + message1.length());
+  size_t prePaddingLength(kBlockSize + hash.length() + 2 + message1.length());
   auto paddingLength(base::RandUint64() % std::min(kMinPaddingLength, 
     kMaxFreenetPacketSize - prePaddingLength));
 
@@ -140,36 +139,20 @@ int main() {
   auto my_hash(crypto::SHA256HashString(crypto::SHA256HashString(my_id)));
   
   char out_key[kBlockSize];
-  for (int i=0; i<hash_i1.length(); i++) out_key[i] = hash_i1[i] ^ my_hash[i];
+  for (size_t i=0; i<hash_i1.length(); i++)
+    out_key[i] = hash_i1[i] ^ my_hash[i];
   
-  crypto::Rijndael rijndael;
-  rijndael.MakeKey(out_key, iv.c_str(), kBlockSize, kBlockSize);
-  
-  // first, initial vector
-  std::string data(iv);
-  
-  // encrypt hash
-  char out[kBlockSize];
-  bzero(out, kBlockSize);
-  rijndael.Encrypt(hash.c_str(), out, kBlockSize, rijndael.CFB);
-  data.append(out, kBlockSize);
-  
+  std::string data(iv);          // first, initial vector
+  crypto::Rijndael rijndael(out_key, static_cast<std::string>(iv));
+  rijndael.Encrypt(hash, data);  // encrypt hash
+
   // encrypt length
-  bzero(out,kBlockSize);
   int length = message1.length();
-  uint8_t L = (uint8_t)length>>8; 
-  rijndael.Encrypt(reinterpret_cast<const char *>(&L), out, 1, rijndael.CFB);
-  data.append(out, 1);
-  
-  out[0] = 0;
-  L = (uint8_t)(0xff & length);
-  rijndael.Encrypt(reinterpret_cast<const char *>(&L), out, 1, rijndael.CFB);
-  data.append(out, 1);
+  char L[] = { (uint8_t)length>>8, (uint8_t)(0xff & length) };
+  rijndael.Encrypt(base::StringPiece(L, sizeof(L)), data);
   
   // encrypt payload
-  char payenc[length];
-  rijndael.Encrypt(message1.c_str(), payenc, length, rijndael.CFB);
-  data.append(payenc, length);
+  rijndael.Encrypt(message1, data);
 
   std::string rnd_bytes;  
   crypto::RandBytes(WriteInto(&rnd_bytes, paddingLength+1), paddingLength);

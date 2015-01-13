@@ -14,8 +14,8 @@ class Nonce {
  public:
  	Nonce(std::size_t size);
 
- // Get the random string
- const std::string& ToString() const;
+  // Get the random string
+  operator std::string() const;
 
  private:
  	std::string nonce;

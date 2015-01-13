@@ -1,5 +1,5 @@
 CXX	:= c++
-FLAGS := -O3 -flto -fno-exceptions -fno-rtti -Wall
+FLAGS := -g3 -O0 -flto -fno-exceptions -fno-rtti -Wall -Wsign-compare -Wendif-labels -Werror -Wno-missing-field-initializers -Wno-unused-parameter -Wno-c++11-narrowing -Wno-char-subscripts -Wno-covered-switch-default -Wno-deprecated-register -Wno-unneeded-internal-declaration -Wno-reserved-user-defined-literal -Wheader-hygiene -Wstring-conversion -Wno-undefined-bool-conversion -Wno-tautological-undefined-compare
 CXXFLAGS = -std=c++1z $(FLAGS)
 CFLAGS = $(FLAGS)
 LDFLAGS  := -flto
@@ -37,7 +37,7 @@ OBJECTS := \
 crypto_test.o \
 /home/zeus/src/boringssl/out/crypto/libcrypto.a
 
-OBJ_TEST_X509 := ../net/p256_key_exchange_x509.o ../net/p256_key_exchange_x509_test.o ../contrib/chrome/net/quic/crypto/p256_key_exchange_openssl.o /home/zeus/src/googletest/src/gtest-all.o /home/zeus/src/googletest/src/gtest_main.o ../contrib/chrome/base/strings/string_piece.o /home/zeus/src/boringssl/out/crypto/libcrypto.a
+OBJ_TEST_X509 := ../crypto/p256_key_exchange_x509.o ../crypto/p256_key_exchange_x509_test.o ../contrib/chrome/net/quic/crypto/p256_key_exchange_openssl.o /home/zeus/src/googletest/src/gtest-all.o /home/zeus/src/googletest/src/gtest_main.o ../contrib/chrome/base/strings/string_piece.o /home/zeus/src/boringssl/out/crypto/libcrypto.a
 
 p256_key_exchage_x509_test: $(OBJ_TEST_X509)
 	$(CXX) $(LDFLAGS) $(OBJ_TEST_X509) -o $@ $(LIBS)

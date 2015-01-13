@@ -12,7 +12,7 @@ Nonce::Nonce(size_t size) {
 	crypto::RandBytes(WriteInto(&nonce, size + 1), size);
 }
 
-const std::string& Nonce::ToString() const {
+Nonce::operator std::string() const {
 	return nonce;
 }
 

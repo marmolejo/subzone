@@ -11,12 +11,12 @@ JustFastKeying::JustFastKeying()
   : nonce_ (kNonceLength) {
 }
 
-const std::string& JustFastKeying::ToString() const {
+JustFastKeying::operator std::string () const {
 	if(!payload_.empty()) return payload_;
 
   const char header [] = { version_, neg_type_, phase_ };
 	payload_.append(header, 3);
-	payload_.append(crypto::SHA256HashString(nonce_.ToString()));
+	payload_.append(crypto::SHA256HashString(static_cast<std::string>(nonce_)));
 	pub_key_.GetX509Public().AppendToString(&payload_);
 
 	return payload_;

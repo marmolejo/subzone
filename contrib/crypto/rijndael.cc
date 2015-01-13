@@ -1,8 +1,9 @@
 
 // rijndael.cc
+#include <algorithm>
 
 #include "rijndael.h"
-#include <algorithm>
+#include "base/logging.h"
 
 namespace crypto {
 
@@ -919,11 +920,22 @@ const int Rijndael::sm_shifts[3][4][2] =
 };
 
 //Null chain
-char const* Rijndael::sm_chain0 = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
+char Rijndael::sm_chain0[] = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
 
 //CONSTRUCTOR
-Rijndael::Rijndael() : m_bKeyInit(false)
-{
+Rijndael::Rijndael(base::StringPiece key, base::StringPiece iv, OpMode mode)
+  : m_keylength(static_cast<int>(key.length())),
+    m_blockSize(static_cast<int>(iv.size())),
+    m_regPointer(m_blockSize),
+    mode_(mode) {
+
+  DCHECK(m_keylength == 16 || m_keylength == 24 || m_keylength == 32);
+  DCHECK(m_blockSize == 16 || m_blockSize == 24 || m_blockSize == 32);
+
+  iv.copy(sm_chain0, MAX_BLOCK_SIZE);
+  memcpy(m_chain, sm_chain0, m_blockSize);
+
+  MakeKey(key.data());
 }
 
 //DESTRUCTOR
@@ -933,22 +945,10 @@ Rijndael::~Rijndael()
 
 //Expand a user-supplied key material into a session key.
 // key        - The 128/192/256-bit user-key to use.
-// chain      - initial chain block for CBC and CFB modes.
-// keylength  - 16, 24 or 32 bytes
-// blockSize  - The block size in bytes of this Rijndael (16, 24 or 32 bytes).
-bool Rijndael::MakeKey(char const* key, char const* chain, int keylength, int blockSize)
+void Rijndael::MakeKey(char const* key)
 {
-	if(NULL == key) return false;
-	if(!(16==keylength || 24==keylength || 32==keylength)) return false;
-	if(!(16==blockSize || 24==blockSize || 32==blockSize)) return false;
+  DCHECK(key);
 
-	m_keylength = keylength;
-	m_blockSize = blockSize;
-	//Initialize the chain
-	memcpy(m_chain0, chain, m_blockSize);
-	memcpy(m_chain, chain, m_blockSize);
-        m_regPointer = m_blockSize;
-        
 	//Calculate Number of Rounds
 	switch(m_keylength)
 	{
@@ -1036,19 +1036,14 @@ bool Rijndael::MakeKey(char const* key, char const* chain, int keylength, int bl
 				sm_U3[(tt >>  8) & 0xFF] ^
 				sm_U4[tt & 0xFF];
 		}
-	m_bKeyInit = true;
-
-	return true;
 }
 
 //Convenience method to encrypt exactly one block of plaintext, assuming
 //Rijndael's default block size (128-bit).
 // in         - The plaintext
 // result     - The ciphertext generated from a plaintext using the key
-bool Rijndael::DefEncryptBlock(char const* in, char* result)
+bool Rijndael::DefEncryptBlock(char const* in, char *result)
 {
-	if(false==m_bKeyInit) return false;
-
 	int* Ker = m_Ke[0];
 	int t0 = ((unsigned char)*(in++) << 24);
 	t0 |= ((unsigned char)*(in++) << 16);
@@ -1122,10 +1117,8 @@ bool Rijndael::DefEncryptBlock(char const* in, char* result)
 //Rijndael's default block size (128-bit).
 // in         - The ciphertext.
 // result     - The plaintext generated from a ciphertext using the session key.
-bool Rijndael::DefDecryptBlock(char const* in, char* result)
+bool Rijndael::DefDecryptBlock(char const* in, char *result)
 {
-	if(false==m_bKeyInit) return false;
-
 	int* Kdr = m_Kd[0];
 	int t0 = ((unsigned char)*(in++) << 24);
 	t0 = t0 | ((unsigned char)*(in++) << 16);
@@ -1197,11 +1190,9 @@ bool Rijndael::DefDecryptBlock(char const* in, char* result)
 //Encrypt exactly one block of plaintext.
 // in           - The plaintext.
 // result       - The ciphertext generated from a plaintext using the key.
-bool Rijndael::EncryptBlock(char const* in, char* result)
+bool Rijndael::EncryptBlock(char const* in, char *result)
 {
-	if(false==m_bKeyInit) return false;
-
-  if(DEFAULT_BLOCK_SIZE == m_blockSize)
+  if(m_blockSize == kDefaultBlockSize)
 		return DefEncryptBlock(in, result);
 
 	int BC = m_blockSize / 4;
@@ -1246,11 +1237,9 @@ bool Rijndael::EncryptBlock(char const* in, char* result)
 //Decrypt exactly one block of ciphertext.
 // in         - The ciphertext.
 // result     - The plaintext generated from a ciphertext using the session key.
-bool Rijndael::DecryptBlock(char const* in, char* result)
+bool Rijndael::DecryptBlock(char const* in, char *result)
 {
-	if(false==m_bKeyInit) return false;
-
-	if(DEFAULT_BLOCK_SIZE == m_blockSize)
+	if(m_blockSize == kDefaultBlockSize)
 		return DefDecryptBlock(in, result);
 
 	int BC = m_blockSize / 4;
@@ -1292,25 +1281,29 @@ bool Rijndael::DecryptBlock(char const* in, char* result)
 	return true;
 }
 
-bool Rijndael::Encrypt(char const* in, char* out, size_t n, int iMode) {
-  
-  if (false == m_bKeyInit) return false;
+bool Rijndael::Encrypt(base::StringPiece in, std::string &out) {
   
   //n should be > 0 and multiple of m_blockSize
-  if (iMode != CFB && n % m_blockSize != 0) return false;
+  if (mode_ != OpMode::CFB && in.length() % m_blockSize != 0)
+  	return false;
 
-  char const* p(in);
-  char* q(out);
-  if (CBC == iMode) //CBC mode, using the Chain
+  auto s (out.size());
+  out.resize(s + in.size());
+
+  auto q (out.begin() + s);
+  char const* p { in.data() };
+  int n { in.length() };
+
+  if (mode_ == OpMode::CBC) //CBC mode, using the Chain
   {
     for (int i=0; i<n/m_blockSize; i++) {
       Xor(m_chain, p, m_blockSize);
-      EncryptBlock(m_chain, q);
-      memcpy(m_chain, q, m_blockSize);
+      EncryptBlock(m_chain, &*q);
+      memcpy(m_chain, &*q, m_blockSize);
       p += m_blockSize;
       q += m_blockSize;
     }
-  } else if (CFB == iMode) //CFB mode, using the Chain
+  } else if (mode_ == OpMode::CFB) //CFB mode, using the Chain
   {
     if (m_regPointer != 0) {
       // first incomplete run      
@@ -1337,7 +1330,7 @@ bool Rijndael::Encrypt(char const* in, char* out, size_t n, int iMode) {
   } else //ECB mode, not using the Chain
   {
     for (int i=0; i<n/m_blockSize; i++) {
-      EncryptBlock(p, q);
+      EncryptBlock(p, &*q);
       p += m_blockSize;
       q += m_blockSize;
     }
@@ -1345,27 +1338,30 @@ bool Rijndael::Encrypt(char const* in, char* out, size_t n, int iMode) {
   return true;
 }
 
-bool Rijndael::Decrypt(char const* in, char* out, size_t n, int iMode)
-{
-	if(false==m_bKeyInit) return false;
-
+bool Rijndael::Decrypt(base::StringPiece in, std::string& out) {
 	//n should be > 0 and multiple of m_blockSize
-	if(iMode != CFB && n%m_blockSize!=0) return false;
+	if (mode_ != OpMode::CFB && in.length() % m_blockSize != 0)
+	  return false;
 
-  char const* p(in);
-  char* q(out);
-	if(CBC == iMode) //CBC mode, using the Chain
+  auto s (out.size());
+  out.resize(s + in.size());
+
+  auto q (out.begin() + s);
+  char const* p { in.data() };
+  int n { in.length() };
+
+	if (mode_ == OpMode::CBC) //CBC mode, using the Chain
 	{
 		for (int i=0; i<n/m_blockSize; i++)
 		{
-			DecryptBlock(p, q);
-			Xor(q, m_chain, m_blockSize);
+			DecryptBlock(p, &*q);
+			Xor(&*q, m_chain, m_blockSize);
 			memcpy(m_chain, p, m_blockSize);				
 			p += m_blockSize;
 			q += m_blockSize;
 		}
 	}
-	else if(CFB == iMode) //CFB mode, using the Chain, not using Decrypt()
+	else if(mode_ == OpMode::CFB) //CFB mode, using the Chain, not using Decrypt()
 	{
     if (m_regPointer != 0) {
       // first incomplete run      
@@ -1403,7 +1399,7 @@ bool Rijndael::Decrypt(char const* in, char* out, size_t n, int iMode)
 	{
 		for(int i=0; i<n/m_blockSize; i++)
 		{
-			DecryptBlock(p, q);
+			DecryptBlock(p, &*q);
 			p += m_blockSize;
 			q += m_blockSize;
 		}
