@@ -2,14 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "net/p256_key_exchange_x509.h"
+#include "crypto/p256_key_exchange_x509.h"
 
 #include "base/logging.h"
 #include "gtest/gtest.h"
 
 using std::string;
 
-namespace net {
+namespace crypto {
 namespace test {
 
 // SharedKeyX509 tests that the basic key exchange identity holds: that both
@@ -42,5 +42,5 @@ TEST(P256KeyExchangeX509, SharedKeyX509) {
 }
 
 }  // namespace test
-}  // namespace net
+}  // namespace crypto
 

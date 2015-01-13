@@ -2,17 +2,17 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef NET_P256_KEY_EXCHANGE_X509_H_
-#define NET_P256_KEY_EXCHANGE_X509_H_
+#ifndef CRYPTO_P256_KEY_EXCHANGE_X509_H_
+#define CRYPTO_P256_KEY_EXCHANGE_X509_H_
 
 #include "net/quic/crypto/p256_key_exchange.h"
 #include "base/strings/string_piece.h"
 #include "crypto/scoped_openssl_types.h"
 
-namespace net {
+namespace crypto {
 
 // An ECDH random key
-class P256KeyExchangeX509 : public P256KeyExchange {
+class P256KeyExchangeX509 : public net::P256KeyExchange {
  public:
  	P256KeyExchangeX509();
  	~P256KeyExchangeX509();
@@ -23,7 +23,7 @@ class P256KeyExchangeX509 : public P256KeyExchange {
   // GetPublicValueFromX509 parses a X.509 certificate containing the EC public
   // key in |peer_public_x509| and returns the uncompressed public key value
   static bool GetPublicValueFromX509(const base::StringPiece& peer_public_x509,
-                                     std::string& out_public_value);
+  	                                 std::string& out_public_value);
 
  private:
  	enum {
@@ -32,10 +32,10 @@ class P256KeyExchangeX509 : public P256KeyExchange {
   };
 
   // The public key stored as a X509 certificate
-  mutable uint8 public_key_x509_[kP256PublicKeyX509Bytes];
-  mutable base::StringPiece public_key_;
+ 	mutable uint8 public_key_x509_[kP256PublicKeyX509Bytes];
+ 	mutable base::StringPiece public_key_;
 };
 
-}  // namespace net
+}  // namespace crypto
 
-#endif  // NET_P256_KEY_EXCHANGE_X509_H_
+#endif  // CRYPTO_P256_KEY_EXCHANGE_X509_H_

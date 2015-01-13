@@ -31,7 +31,9 @@ OBJECTS := \
 ../contrib/chrome/url/url_canon_internal.o \
 ../contrib/chrome/url/url_canon_ip.o \
 ../contrib/crypto/rijndael.o \
-../net/p256_key_exchange_x509.o \
+../crypto/p256_key_exchange_x509.o \
+../crypto/just_fast_keying.o \
+../crypto/nonce.o \
 crypto_test.o \
 /home/zeus/src/boringssl/out/crypto/libcrypto.a
 

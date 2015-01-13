@@ -2,12 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "net/p256_key_exchange_x509.h"
+#include "crypto/p256_key_exchange_x509.h"
 #include "net/quic/crypto/p256_key_exchange.h"
 
 #include <openssl/x509.h>
 
-namespace net {
+namespace crypto {
 
 P256KeyExchangeX509::P256KeyExchangeX509() 
   : P256KeyExchange (P256KeyExchange::New(
@@ -32,7 +32,7 @@ base::StringPiece P256KeyExchangeX509::GetX509Public() const {
   return public_key_;
 }
 
-// static
+// static 
 bool P256KeyExchangeX509::GetPublicValueFromX509(
     const base::StringPiece& peer_public_x509, std::string& out_public_value) {
 
@@ -44,8 +44,8 @@ bool P256KeyExchangeX509::GetPublicValueFromX509(
   const unsigned char *public_key_data {
     reinterpret_cast<const unsigned char *>(peer_public_x509.data()) };
 
-  crypto::ScopedEVP_PKEY pkey {
-    d2i_PUBKEY(nullptr, &public_key_data, peer_public_x509.size()) };
+  crypto::ScopedEVP_PKEY pkey { 
+    d2i_PUBKEY(nullptr, &public_key_data, peer_public_x509.size()) }; 
   if (pkey.get() == nullptr) {
     DVLOG(1) << "Unable to convert public key.";
     return false;
@@ -68,4 +68,4 @@ bool P256KeyExchangeX509::GetPublicValueFromX509(
   return true;
 }
 
-}  // namespace net
+}  // namespace crypto

@@ -7,7 +7,8 @@
 
 #include "net/udp/udp_client_socket.h"
 #include "net/base/test_completion_callback.h"
-#include "net/p256_key_exchange_x509.h"
+#include "crypto/p256_key_exchange_x509.h"
+#include "crypto/just_fast_keying.h"
 
 using namespace net;
 
@@ -18,11 +19,6 @@ using namespace net;
 // darknet handshake test. Pick a nonce, ECDH keypair, iv and padding length
 
 const size_t kBlockSize = 32;
-const size_t kNonceLength = 16;
-
-const uint8_t kVersion = 1;
-const uint8_t kNegType = 9;
-const uint8_t kPhase   = 0;
 
 const char i1_identity[] = "gAXIdY1ZIY5imCwcISPDmkUCfEf0iT463+k2PkAh8Cw";
 const char my_identity[] = "tMh1zG3Vy+c+dfeGqPRn+Df9Ich0K89U6SiAci2hgPk";
@@ -32,7 +28,7 @@ const size_t kMinPaddingLength = 100;
 
 const uint16 kPort = 6991;
 
-std::string hexdump(std::string &in)
+std::string hexdump(const std::string &in)
 {
   std::ostringstream os;
   std::istringstream is(in);
@@ -114,21 +110,11 @@ void CreateUDPAddress(std::string ip_str, uint16 port, IPEndPoint* address) {
 
 
 int main() {
-  // Get a 128-bit nonce hash
-  std::string nonce;
-  crypto::RandBytes(WriteInto(&nonce, kNonceLength + 1), kNonceLength);
-  std::string hash_nonce(crypto::SHA256HashString(nonce));
-  std::string message1(hash_nonce);
-
-  net::P256KeyExchangeX509 ecdhe_key;
-  ecdhe_key.GetX509Public().AppendToString(&message1);
-
-  // Add version, negType and phase
-  const char pr[] = { kVersion, kNegType, kPhase };
-  std::string preface(pr, 3);
-  message1.insert(0, preface);
+  crypto::JustFastKeying jfk1;
 
   // payload is ready
+  std::string message1(jfk1.ToString());
+
   std::cout << "message1: " << std::endl;
   std::cout << hexdump(message1);
 
