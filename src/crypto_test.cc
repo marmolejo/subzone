@@ -121,7 +121,7 @@ int main() {
   std::string message1(hash_nonce);
 
   net::P256KeyExchangeX509 ecdhe_key;
-  ecdhe_key.GetPublicX509().AppendToString(&message1);
+  ecdhe_key.GetX509Public().AppendToString(&message1);
 
   // Add version, negType and phase
   const char pr[] = { kVersion, kNegType, kPhase };

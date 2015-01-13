@@ -18,7 +18,12 @@ class P256KeyExchangeX509 : public P256KeyExchange {
  	~P256KeyExchangeX509();
 
  	// Obtain the public key in X.509 network format
-  base::StringPiece GetPublicX509();
+  base::StringPiece GetX509Public() const;
+
+  // GetPublicValueFromX509 parses a X.509 certificate containing the EC public
+  // key in |peer_public_x509| and returns the uncompressed public key value
+  static bool GetPublicValueFromX509(const base::StringPiece& peer_public_x509,
+                                     std::string& out_public_value);
 
  private:
  	enum {
@@ -27,8 +32,8 @@ class P256KeyExchangeX509 : public P256KeyExchange {
   };
 
   // The public key stored as a X509 certificate
- 	uint8 public_key_x509_[kP256PublicKeyX509Bytes];
- 	base::StringPiece public_key_;
+  mutable uint8 public_key_x509_[kP256PublicKeyX509Bytes];
+  mutable base::StringPiece public_key_;
 };
 
 }  // namespace net

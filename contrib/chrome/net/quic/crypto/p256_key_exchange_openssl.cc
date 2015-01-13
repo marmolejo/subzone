@@ -23,7 +23,7 @@ P256KeyExchange::P256KeyExchange(KeyPair key_pair)
 P256KeyExchange::~P256KeyExchange() {}
 
 // static
-KeyPair P256KeyExchange::New(StringPiece key) {
+P256KeyExchange::KeyPair P256KeyExchange::New(StringPiece key) {
   KeyPair kp(nullptr, nullptr);
   if (key.empty()) {
     DVLOG(1) << "Private key is empty";
@@ -74,7 +74,7 @@ string P256KeyExchange::NewPrivateKey() {
   return string(reinterpret_cast<char*>(private_key.get()), key_len);
 }
 
-KeyPair P256KeyExchange::NewKeyPair(QuicRandom* /*rand*/) const {
+P256KeyExchange::KeyPair P256KeyExchange::NewKeyPair(QuicRandom* /*rand*/) const {
   // TODO(agl): avoid the serialisation/deserialisation in this function.
   const string private_value = NewPrivateKey();
   return P256KeyExchange::New(private_value);

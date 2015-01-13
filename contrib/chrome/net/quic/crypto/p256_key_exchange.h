@@ -19,9 +19,11 @@ namespace net {
 
 // P256KeyExchange implements a KeyExchange using elliptic-curve
 // Diffie-Hellman on NIST P-256.
-class NET_EXPORT_PRIVATE P256KeyExchange : public KeyExchange {
+class NET_EXPORT_PRIVATE P256KeyExchange {
  public:
-  ~P256KeyExchange() override;
+  ~P256KeyExchange();
+
+  using KeyPair = std::pair<EC_KEY*, const uint8 *>;
 
   // New creates a new key exchange object from a private key. If
   // |private_key| is invalid, nullptr is returned.
@@ -33,11 +35,11 @@ class NET_EXPORT_PRIVATE P256KeyExchange : public KeyExchange {
   static std::string NewPrivateKey();
 
   // KeyExchange interface.
-  KeyPair NewKeyPair(QuicRandom* rand) const override;
+  KeyPair NewKeyPair(QuicRandom* rand) const;
   bool CalculateSharedKey(const base::StringPiece& peer_public_value,
-                          std::string* shared_key) const override;
-  base::StringPiece public_value() const override;
-  QuicTag tag() const override;
+                          std::string* shared_key) const;
+  base::StringPiece public_value() const;
+  QuicTag tag() const;
 
  protected:
   enum {
@@ -52,16 +54,20 @@ class NET_EXPORT_PRIVATE P256KeyExchange : public KeyExchange {
   };
 
 #if defined(USE_OPENSSL)
+ public:
   // P256KeyExchange takes ownership of |private_key|, and expects
   // |public_key| consists of |kUncompressedP256PointBytes| bytes.
   P256KeyExchange(KeyPair key_pair);
 
+ protected:
   crypto::ScopedEC_KEY private_key_;
 #else
+ public:
   // P256KeyExchange takes ownership of |key_pair|, and expects
   // |public_key| consists of |kUncompressedP256PointBytes| bytes.
   P256KeyExchange(KeyPair key_pair);
 
+ protected:
   scoped_ptr<crypto::ECPrivateKey> key_pair_;
 #endif
   // The public key stored as an uncompressed P-256 point.

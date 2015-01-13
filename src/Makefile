@@ -3,7 +3,7 @@ FLAGS := -O3 -flto -fno-exceptions -fno-rtti -Wall
 CXXFLAGS = -std=c++1z $(FLAGS)
 CFLAGS = $(FLAGS)
 LDFLAGS  := -flto
-INCLUDES := -I../contrib/chrome -I../contrib/chrome/out/Default/gen -I../contrib -I..
+INCLUDES := -I../contrib/chrome -I../contrib/chrome/out/Default/gen -I../contrib -I.. -I/home/zeus/src/googletest/include -I/home/zeus/src/googletest
 DEFINES  := -DUSE_OPENSSL -DNDEBUG
 LIBS     := -lpthread -levent -licuuc
 OBJECTS := \
@@ -34,6 +34,11 @@ OBJECTS := \
 ../net/p256_key_exchange_x509.o \
 crypto_test.o \
 /home/zeus/src/boringssl/out/crypto/libcrypto.a
+
+OBJ_TEST_X509 := ../net/p256_key_exchange_x509.o ../net/p256_key_exchange_x509_test.o ../contrib/chrome/net/quic/crypto/p256_key_exchange_openssl.o /home/zeus/src/googletest/src/gtest-all.o /home/zeus/src/googletest/src/gtest_main.o ../contrib/chrome/base/strings/string_piece.o /home/zeus/src/boringssl/out/crypto/libcrypto.a
+
+p256_key_exchage_x509_test: $(OBJ_TEST_X509)
+	$(CXX) $(LDFLAGS) $(OBJ_TEST_X509) -o $@ $(LIBS)
 
 crypto_test: $(OBJECTS)
 	$(CXX) $(LDFLAGS) $(OBJECTS) -o $@ $(LIBS)
