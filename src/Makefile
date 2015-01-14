@@ -35,6 +35,7 @@ OBJECTS := \
 ../crypto/just_fast_keying.o \
 ../crypto/nonce.o \
 ../crypto/handshake.o \
+../net/darknet_auth.o \
 crypto_test.o \
 /home/zeus/src/boringssl/out/crypto/libcrypto.a
 

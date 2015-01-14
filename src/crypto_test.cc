@@ -1,17 +1,4 @@
-#include "base/strings/string_util.h"
-#include "base/base64.h"
-#include "crypto/random.h"
-#include "crypto/sha2.h"
-#include "net/quic/crypto/p256_key_exchange.h"
-#include "crypto/rijndael.h"
-
-#include "net/udp/udp_client_socket.h"
-#include "net/base/test_completion_callback.h"
-#include "crypto/p256_key_exchange_x509.h"
-#include "crypto/just_fast_keying.h"
-#include "crypto/handshake.h"
-
-using namespace net;
+#include "net/darknet_auth.h"
 
 #include <iostream>
 #include <iomanip>
@@ -65,62 +52,9 @@ std::string hexdump(const std::string &in)
   return os.str();
 }
 
-extern "C" {
-int i2d_PUBKEY(EVP_PKEY *a, unsigned char **pp);
-int X509_PUBKEY_set(X509_PUBKEY **x, EVP_PKEY *pkey);
-EVP_PKEY *X509_PUBKEY_get(X509_PUBKEY *key);
-}
-
-CompletionCallback cc;
-
-// Loop until |msg| has been written to the socket or until an
-// error occurs.
-int WriteSocket(UDPClientSocket* socket, std::string msg) {
-  int length = static_cast<int>(msg.length());
-  scoped_refptr<StringIOBuffer> io_buffer(new StringIOBuffer(msg));
-  scoped_refptr<DrainableIOBuffer> buffer(
-    new DrainableIOBuffer(io_buffer.get(), length));
-
-  int bytes_sent = 0;
-  while (buffer->BytesRemaining()) {
-    int rv = socket->Write(
-        buffer.get(), buffer->BytesRemaining(), cc);
-    if (rv == ERR_IO_PENDING)
-      rv = 0; //callback.WaitForResult();
-    if (rv <= 0)
-      return bytes_sent > 0 ? bytes_sent : rv;
-    bytes_sent += rv;
-    buffer->DidConsume(rv);
-  }
-  return bytes_sent;
-}
-
-// Creates and address from an ip/port and returns it in |address|.
-void CreateUDPAddress(std::string ip_str, uint16 port, IPEndPoint* address) {
-  IPAddressNumber ip_number;
-  bool rv = ParseIPLiteralToNumber(ip_str, &ip_number);
-  if (!rv)
-    return;
-  *address = IPEndPoint(ip_number, port);
-}
-
-
 int main() {
-  crypto::Handshake hs(my_identity, i1_identity);
-
-  std::cout << "data: " << std::endl;
-  std::cout << hexdump(hs);
-
-  // Setup the client.
-  IPEndPoint server_address;
-  CreateUDPAddress("127.0.0.1", kPort, &server_address);
-  scoped_ptr<UDPClientSocket> client(
-      new UDPClientSocket(DatagramSocket::DEFAULT_BIND,
-                          RandIntCallback() /*,
-                          nullptr,
-                          NetLog::Source()*/));
-  client->Connect(server_address);
+  net::DarknetAuth da(my_identity, i1_identity, "127.0.0.1", kPort);
 
   // Client sends to the server.
-  return WriteSocket(client.get(), hs);
+  return da.SendJFK1();
 }
