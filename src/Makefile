@@ -34,6 +34,7 @@ OBJECTS := \
 ../crypto/p256_key_exchange_x509.o \
 ../crypto/just_fast_keying.o \
 ../crypto/nonce.o \
+../crypto/handshake.o \
 crypto_test.o \
 /home/zeus/src/boringssl/out/crypto/libcrypto.a
 

@@ -16,6 +16,7 @@ class JustFastKeying {
  	JustFastKeying();
 
   operator std::string () const;
+  int Length() const;
 
  private:
   enum {

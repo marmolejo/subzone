@@ -22,4 +22,8 @@ JustFastKeying::operator std::string () const {
 	return payload_;
 }
 
+int JustFastKeying::Length() const {
+	return static_cast<std::string>(*this).length();
+}
+
 }  // namespace crypto
