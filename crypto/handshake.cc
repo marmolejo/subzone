@@ -27,11 +27,11 @@ std::string Handshake::BuildKey(base::StringPiece i0, base::StringPiece i1) {
   std::string i0_id;
   base::Base64Decode(i0, &i0_id);
   auto i0_hash(crypto::SHA256HashString(crypto::SHA256HashString(i0_id)));
-  
+
   std::string i1_id;
   base::Base64Decode(i1, &i1_id);
   auto i1_hash(crypto::SHA256HashString(i1_id));
-  
+
   std::string out_key;
   out_key.resize(kBlockSize);
   for (size_t i=0; i<i1_hash.length(); ++i)
@@ -51,15 +51,15 @@ Handshake::operator std::string () {
   int length = jfk1_.Length();
   char L[] = { (uint8_t)length>>8, (uint8_t)(0xff & length) };
   rijndael_.Encrypt(base::StringPiece(L, sizeof(L)), message_);
-  
+
   // encrypt payload
   rijndael_.Encrypt(static_cast<std::string>(jfk1_), message_);
 
-  std::string rnd_bytes;  
+  std::string rnd_bytes;
   crypto::RandBytes(WriteInto(&rnd_bytes, padding_length_+1), padding_length_);
   message_.append(rnd_bytes);
- 
-  return message_;  
+
+  return message_;
 }
 
 }  // namespace crypto
