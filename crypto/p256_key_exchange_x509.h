@@ -14,9 +14,6 @@ namespace crypto {
 // An ECDH random key
 class P256KeyExchangeX509 : public net::P256KeyExchange {
  public:
- 	P256KeyExchangeX509();
- 	~P256KeyExchangeX509();
-
  	// Obtain the public key in X.509 network format
   base::StringPiece GetX509Public() const;
 

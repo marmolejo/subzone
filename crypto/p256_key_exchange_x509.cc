@@ -9,30 +9,22 @@
 
 namespace crypto {
 
-P256KeyExchangeX509::P256KeyExchangeX509() 
-  : P256KeyExchange (P256KeyExchange::New(
-  	  P256KeyExchange::NewPrivateKey())) {
-}
-
-P256KeyExchangeX509::~P256KeyExchangeX509() {
-}
-
 base::StringPiece P256KeyExchangeX509::GetX509Public() const {
 	if (!public_key_.empty()) return public_key_;
-	
+
   // We get the public in X.509 format from the private key
   crypto::ScopedEVP_PKEY pkey { EVP_PKEY_new() };
   EVP_PKEY_set1_EC_KEY(pkey.get(), private_key_.get());
 
   uint8 *public_key { public_key_x509_ };
   i2d_PUBKEY(pkey.get(), &public_key);
-  public_key_.set(reinterpret_cast<char *>(public_key_x509_), 
+  public_key_.set(reinterpret_cast<char *>(public_key_x509_),
   	  kP256PublicKeyX509Bytes);
 
   return public_key_;
 }
 
-// static 
+// static
 bool P256KeyExchangeX509::GetPublicValueFromX509(
     const base::StringPiece& peer_public_x509, std::string& out_public_value) {
 
@@ -44,8 +36,8 @@ bool P256KeyExchangeX509::GetPublicValueFromX509(
   const unsigned char *public_key_data {
     reinterpret_cast<const unsigned char *>(peer_public_x509.data()) };
 
-  crypto::ScopedEVP_PKEY pkey { 
-    d2i_PUBKEY(nullptr, &public_key_data, peer_public_x509.size()) }; 
+  crypto::ScopedEVP_PKEY pkey {
+    d2i_PUBKEY(nullptr, &public_key_data, peer_public_x509.size()) };
   if (pkey.get() == nullptr) {
     DVLOG(1) << "Unable to convert public key.";
     return false;

@@ -7,7 +7,7 @@
 
 #include "base/strings/string_piece.h"
 #include "crypto/just_fast_keying.h"
-#include "contrib/crypto/rijndael.h"
+#include "crypto/rijndael.h"
 
 namespace crypto {
 

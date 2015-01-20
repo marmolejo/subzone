@@ -6,6 +6,7 @@
 
 #include "base/logging.h"
 #include "gtest/gtest.h"
+#include "debug/hexdump.h"
 
 using std::string;
 
@@ -18,7 +19,6 @@ TEST(P256KeyExchangeX509, SharedKeyX509) {
   for (int i = 0; i < 5; i++) {
     scoped_ptr<P256KeyExchangeX509> alice(new P256KeyExchangeX509());
     scoped_ptr<P256KeyExchangeX509> bob(new P256KeyExchangeX509());
-
     ASSERT_TRUE(alice.get() != nullptr);
     ASSERT_TRUE(bob.get() != nullptr);
 
