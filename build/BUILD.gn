@@ -1,0 +1,19 @@
+import("//build/gcc_toolchain.gni")
+
+config("default_include_dirs") {
+  include_dirs = [
+    "//",
+  ]
+}
+
+gcc_toolchain("x64") {
+  cc = "gcc"
+  cxx = "g++"
+
+  ar = "ar"
+  ld = cxx
+
+  toolchain_cpu_arch = "x64"
+  toolchain_os = "linux"
+  is_clang = false
+}
