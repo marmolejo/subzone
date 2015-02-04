@@ -40,11 +40,9 @@ class NET_EXPORT_PRIVATE P256KeyExchange {
   };
 
  protected:
-#if defined(USE_OPENSSL)
+  // We use only the OpenSSL implementation
   crypto::ScopedEC_KEY private_key_;
-#else
-  scoped_ptr<crypto::ECPrivateKey> key_pair_;
-#endif
+
   // The public key stored as an uncompressed P-256 point.
   uint8 public_key_[kUncompressedP256PointBytes];
 

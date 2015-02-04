@@ -6,37 +6,6 @@ group("root") {
 
 executable("crypto_test") {
   sources = [
-    "chrome/base/base64.cc",
-    "chrome/base/callback_internal.cc",
-    "chrome/base/debug/stack_trace.cc",
-    "chrome/base/debug/stack_trace_posix.cc",
-    "chrome/base/debug/proc_maps_linux.cc",
-    "chrome/base/files/file_util_posix.cc",
-    "chrome/base/lazy_instance.cc",
-    "chrome/base/logging.cc",
-    "chrome/base/memory/ref_counted.cc",
-    "chrome/base/memory/weak_ptr.cc",
-    "chrome/base/memory/singleton.cc",
-    "chrome/base/message_loop/message_pump_libevent.cc",
-    "chrome/base/rand_util_posix.cc",
-    "chrome/base/strings/string_piece.cc",
-    "chrome/base/third_party/symbolize/symbolize.cc",
-    "chrome/base/third_party/symbolize/demangle.cc",
-    "chrome/base/threading/thread_restrictions.cc",
-    "chrome/crypto/random.cc",
-    "chrome/crypto/secure_hash_default.cc",
-    "chrome/crypto/sha2.cc",
-    "chrome/crypto/third_party/nss/sha512.cc",
-    "chrome/net/base/io_buffer.cc",
-    "chrome/net/base/ip_endpoint.cc",
-    "chrome/net/base/net_util.cc",
-    "chrome/net/quic/crypto/p256_key_exchange_openssl.cc",
-    "chrome/net/socket/socket_descriptor.cc",
-    "chrome/net/udp/udp_client_socket.cc",
-    "chrome/net/udp/udp_socket_libevent.cc",
-    "chrome/third_party/modp_b64/modp_b64.cc",
-    "chrome/url/url_canon_internal.cc",
-    "chrome/url/url_canon_ip.cc",
     "crypto/rijndael.cc",
     "crypto/p256_key_exchange_x509.cc",
     "crypto/p256_key_exchange_x509_test.cc",
@@ -46,55 +15,23 @@ executable("crypto_test") {
     "net/darknet_auth.cc",
     "net/darknet_auth_test.cc",
     "debug/hexdump.cc",
-    "/home/zeus/src/googletest/src/gtest-all.cc",
-    "/home/zeus/src/googletest/src/gtest_main.cc",
-    "chrome/base/debug/alias.cc",
-    "chrome/base/debug/debugger_posix.cc",
-    "chrome/base/sequence_checker_impl.cc",
-    "chrome/base/synchronization/lock_impl_posix.cc",
-    "chrome/base/synchronization/lock.cc",
-    "chrome/base/threading/platform_thread_posix.cc",
-    "chrome/base/threading/sequenced_worker_pool.cc",
-    "chrome/base/threading/thread_checker_impl.cc",
-    "chrome/base/threading/non_thread_safe_impl.cc",
-    "chrome/base/threading/thread_local_posix.cc",
-    "chrome/base/strings/string16.cc",
-    "chrome/base/files/scoped_file.cc",
-    "chrome/base/strings/string_split.cc",
-    "chrome/base/strings/string_util.cc",
-    "chrome/base/strings/string_util_constants.cc",
-    "chrome/base/at_exit.cc",
-    "chrome/base/safe_strerror_posix.cc"
   ]
 
   defines = [
     "_DEBUG",
-    "USE_SYMBOLIZE",
-    "USE_OPENSSL=1"
   ]
   include_dirs = [
     "chrome",
-    "chrome/out/Default/gen",
-    "../../src/googletest/include",
-    "../../src/googletest",
   ]
   cflags = [ "-std=gnu++11" ]
   libs = [
-    "/home/zeus/src/boringssl/out/crypto/libcrypto.a",
     "pthread",
     "event",
     "icuuc"
   ]
   deps = [
-    ":dynamic_annotations"
-  ]
-}
-
-static_library("dynamic_annotations") {
-  sources = [
-    "chrome/base/third_party/dynamic_annotations/dynamic_annotations.c",
-  ]
-  include_dirs = [
-    "chrome",
+    "//chrome",
+    "//third_party/gtest",
+    "//third_party/boringssl",
   ]
 }
