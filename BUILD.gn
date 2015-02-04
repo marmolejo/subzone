@@ -7,8 +7,8 @@ group("root") {
 executable("crypto_test") {
   sources = [
     "crypto/rijndael.cc",
-    "crypto/p256_key_exchange_x509.cc",
-    "crypto/p256_key_exchange_x509_test.cc",
+    "crypto/p256_key_exchange.cc",
+    "crypto/p256_key_exchange_test.cc",
     "crypto/just_fast_keying.cc",
     "crypto/nonce.cc",
     "crypto/handshake.cc",

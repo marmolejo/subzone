@@ -6,7 +6,7 @@
 #define CRYPTO_JUST_FAST_KEYING_H_
 
 #include "crypto/nonce.h"
-#include "crypto/p256_key_exchange_x509.h"
+#include "crypto/p256_key_exchange.h"
 
 namespace crypto {
 
@@ -22,7 +22,7 @@ class JustFastKeying {
   enum {
     // Nonce length, 256 bits
   	kNonceLength = 32,
-  	
+
   	// Handshake version, currently 1
     kVersion = 1,
 
@@ -34,9 +34,9 @@ class JustFastKeying {
   };
 
  	Nonce nonce_;
-  
+
   // P256 curve public key in X.509 format
-  P256KeyExchangeX509 pub_key_; 
+  P256KeyExchange pub_key_;
 
   char version_ { kVersion };
   char neg_type_ { kNegType };

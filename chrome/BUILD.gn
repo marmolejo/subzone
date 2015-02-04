@@ -24,7 +24,6 @@ static_library("chrome") {
     "net/base/io_buffer.cc",
     "net/base/ip_endpoint.cc",
     "net/base/net_util.cc",
-    "net/quic/crypto/p256_key_exchange_openssl.cc",
     "net/socket/socket_descriptor.cc",
     "net/udp/udp_client_socket.cc",
     "net/udp/udp_socket_libevent.cc",
