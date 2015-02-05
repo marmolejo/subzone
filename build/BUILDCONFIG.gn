@@ -3,11 +3,13 @@ set_default_toolchain("//build:x64")
 set_defaults("static_library") {
   configs = [
     "//build:default_include_dirs",
+    "//build:compiler",
   ]
 }
 
 set_defaults("executable") {
   configs = [
     "//build:default_include_dirs",
+    "//build:compiler",
   ]
 }

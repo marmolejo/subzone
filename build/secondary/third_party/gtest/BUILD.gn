@@ -33,7 +33,7 @@ config("gtest_config") {
     "GTEST_HAS_POSIX_RE=0",
 
     # Chrome doesn't support / require C++11, yet.
-    "GTEST_LANG_CXX11=0",
+    #"GTEST_LANG_CXX11=0",
   ]
 
   # Gtest headers need to be able to find themselves.
@@ -81,6 +81,11 @@ config("gtest_direct_config") {
 }
 
 # gtest_sources =
+
+#config("no_gnu11") {
+#  visibility = [ ":*" ]
+#  cflags = [ "-std=gnu++11" ]
+#}
 
 static_library("gtest") {
   # TODO http://crbug.com/412064 enable this flag all the time.
@@ -133,6 +138,8 @@ static_library("gtest") {
 
   all_dependent_configs = [ ":gtest_config" ]
   public_configs = [ ":gtest_direct_config" ]
+
+#  configs -= [ ":no_gnu11" ]
 
 #  configs -= [ "//build/config/compiler:chromium_code" ]
 #  configs += [ "//build/config/compiler:no_chromium_code" ]

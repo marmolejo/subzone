@@ -5,6 +5,8 @@
 #ifndef CRYPTO_P256_KEY_EXCHANGE_H_
 #define CRYPTO_P256_KEY_EXCHANGE_H_
 
+#include <string>
+
 #include "base/strings/string_piece.h"
 #include "crypto/scoped_openssl_types.h"
 
@@ -14,18 +16,19 @@ namespace crypto {
 class P256KeyExchange {
  public:
   P256KeyExchange();
+  ~P256KeyExchange();
 
   bool CalculateSharedKey(const base::StringPiece& peer_public_value,
                           std::string* shared_key) const;
   base::StringPiece public_value() const;
 
- 	// Obtain the public key in X.509 network format
+  // Obtain the public key in X.509 network format
   base::StringPiece GetX509Public() const;
 
   // GetPublicValueFromX509 parses a X.509 certificate containing the EC public
   // key in |peer_public_x509| and returns the uncompressed public key value
   static bool GetPublicValueFromX509(const base::StringPiece& peer_public_x509,
-  	                                 std::string& out_public_value);
+                                     std::string *out_public_value);
 
  private:
   enum {
@@ -42,8 +45,8 @@ class P256KeyExchange {
   };
 
   // The public key stored as a X509 certificate
- 	mutable uint8 public_key_x509_[kP256PublicKeyX509Bytes];
- 	mutable base::StringPiece public_key_x509_str_;
+  mutable uint8 public_key_x509_[kP256PublicKeyX509Bytes];
+  mutable base::StringPiece public_key_x509_str_;
 
   // We use only the OpenSSL implementation
   crypto::ScopedEC_KEY private_key_;
@@ -56,4 +59,4 @@ class P256KeyExchange {
 
 }  // namespace crypto
 
-#endif  // CRYPTO_P256_KEY_EXCHANGE_X509_H_
+#endif  // CRYPTO_P256_KEY_EXCHANGE_H_

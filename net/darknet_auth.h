@@ -13,18 +13,19 @@ namespace net {
 
 class DarknetAuth {
  public:
- 	DarknetAuth(base::StringPiece my_id, base::StringPiece peer_id,
- 		          base::StringPiece ip_str, uint16 port);
+  DarknetAuth(base::StringPiece my_id, base::StringPiece peer_id,
+              base::StringPiece ip_str, uint16 port);
+  ~DarknetAuth();
 
   int SendJFK1();
- 
+
  private:
   // Creates and address from an ip/port and returns it in |address|.
   static void CreateUDPAddress(base::StringPiece ip_str, uint16 port,
-  	                           IPEndPoint* address);
+                               IPEndPoint* address);
 
- 	crypto::Handshake hs_;
- 	UDPClientSocket client_;
+  crypto::Handshake hs_;
+  UDPClientSocket client_;
   CompletionCallback cc_;
 };
 

@@ -3,25 +3,28 @@
 // found in the LICENSE file.
 
 #include "net/darknet_auth.h"
+#include <string>
 #include "net/base/net_util.h"
 #include "net/base/test_completion_callback.h"
 
 namespace net {
 
 DarknetAuth::DarknetAuth(base::StringPiece my_id, base::StringPiece peer_id,
- 		                     base::StringPiece ip_str, uint16 port)
- 	: hs_(my_id, peer_id),
- 	  client_(DatagramSocket::DEFAULT_BIND, RandIntCallback()) {
-
+                         base::StringPiece ip_str, uint16 port)
+  : hs_(my_id, peer_id),
+    client_(DatagramSocket::DEFAULT_BIND, RandIntCallback()) {
   IPEndPoint srv_addr;
   CreateUDPAddress(ip_str, port, &srv_addr);
-  
+
   client_.Connect(srv_addr);
 }
 
+DarknetAuth::~DarknetAuth() {
+}
+
 // static
-void DarknetAuth::CreateUDPAddress(base::StringPiece ip_str, uint16 port, 
-	                                 IPEndPoint* address) {
+void DarknetAuth::CreateUDPAddress(base::StringPiece ip_str, uint16 port,
+                                   IPEndPoint* address) {
   IPAddressNumber ip_number;
   bool rv = ParseIPLiteralToNumber(ip_str.as_string(), &ip_number);
   if (!rv)
@@ -30,7 +33,7 @@ void DarknetAuth::CreateUDPAddress(base::StringPiece ip_str, uint16 port,
 }
 
 int DarknetAuth::SendJFK1() {
- 	// Loop until |hs_| has been written to the socket or until an
+  // Loop until |hs_| has been written to the socket or until an
   // error occurs.
   std::string msg { static_cast<std::string>(hs_) };
   int length = static_cast<int>(msg.length());
@@ -44,7 +47,7 @@ int DarknetAuth::SendJFK1() {
     int rv = client_.Write(
         buffer.get(), buffer->BytesRemaining(), cc_);
     if (rv == ERR_IO_PENDING)
-      rv = 0; //callback.WaitForResult();
+      rv = 0;  // callback.WaitForResult();
     if (rv <= 0)
       return bytes_sent > 0 ? bytes_sent : rv;
     bytes_sent += rv;

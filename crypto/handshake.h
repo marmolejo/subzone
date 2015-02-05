@@ -5,6 +5,8 @@
 #ifndef CRYPTO_HANDSHAKE_H_
 #define CRYPTO_HANDSHAKE_H_
 
+#include <string>
+
 #include "base/strings/string_piece.h"
 #include "crypto/just_fast_keying.h"
 #include "crypto/rijndael.h"
@@ -13,7 +15,8 @@ namespace crypto {
 
 class Handshake {
  public:
- 	Handshake(base::StringPiece i0, base::StringPiece i1);
+  Handshake(base::StringPiece i0, base::StringPiece i1);
+  ~Handshake();
 
   operator std::string ();
 
@@ -26,8 +29,8 @@ class Handshake {
 
   static std::string BuildKey(base::StringPiece i0, base::StringPiece i1);
 
- 	JustFastKeying jfk1_;
- 	Nonce iv_;
+  JustFastKeying jfk1_;
+  Nonce iv_;
   int pre_padding_length_;
   int padding_length_;
   Rijndael rijndael_;

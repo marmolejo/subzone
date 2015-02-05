@@ -32,9 +32,9 @@ TEST(P256KeyExchange, SharedKeyX509) {
     // Convert X.509 format to public key value
     string alice_public, bob_public;
     ASSERT_TRUE(P256KeyExchange::GetPublicValueFromX509(alice_public_x509,
-  	    alice_public));
+        &alice_public));
     ASSERT_TRUE(P256KeyExchange::GetPublicValueFromX509(bob_public_x509,
-  	    bob_public));
+        &bob_public));
 
     ASSERT_EQ(alice_public, alice->public_value());
     ASSERT_EQ(bob_public, bob->public_value());

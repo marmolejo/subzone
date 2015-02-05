@@ -4,7 +4,7 @@
 
 #include "crypto/p256_key_exchange.h"
 #include <openssl/x509.h>
-
+#include <string>
 #include "base/logging.h"
 
 using base::StringPiece;
@@ -27,6 +27,9 @@ P256KeyExchange::P256KeyExchange()
                        POINT_CONVERSION_UNCOMPRESSED, public_key_,
                        sizeof(public_key_), nullptr));
   DCHECK_EQ(size_public, sizeof(public_key_));
+}
+
+P256KeyExchange::~P256KeyExchange() {
 }
 
 bool P256KeyExchange::CalculateSharedKey(const StringPiece& peer_public_value,
@@ -65,7 +68,7 @@ StringPiece P256KeyExchange::public_value() const {
 }
 
 base::StringPiece P256KeyExchange::GetX509Public() const {
-	if (!public_key_x509_str_.empty()) return public_key_x509_str_;
+  if (!public_key_x509_str_.empty()) return public_key_x509_str_;
 
   // We get the public in X.509 format from the private key
   crypto::ScopedEVP_PKEY pkey { EVP_PKEY_new() };
@@ -74,14 +77,15 @@ base::StringPiece P256KeyExchange::GetX509Public() const {
   uint8 *public_key { public_key_x509_ };
   i2d_PUBKEY(pkey.get(), &public_key);
   public_key_x509_str_.set(reinterpret_cast<char *>(public_key_x509_),
-  	  kP256PublicKeyX509Bytes);
+      kP256PublicKeyX509Bytes);
 
   return public_key_x509_str_;
 }
 
 // static
 bool P256KeyExchange::GetPublicValueFromX509(
-    const base::StringPiece& peer_public_x509, std::string& out_public_value) {
+    const base::StringPiece& peer_public_x509,
+    std::string *out_public_value) {
 
   if (peer_public_x509.size() != kP256PublicKeyX509Bytes) {
     DVLOG(1) << "X.509 public key in wrong size.";
@@ -109,8 +113,8 @@ bool P256KeyExchange::GetPublicValueFromX509(
     return false;
   }
 
-  out_public_value.assign(reinterpret_cast<const char*>(public_key),
-                          sizeof(public_key));
+  out_public_value->assign(reinterpret_cast<const char*>(public_key),
+                           sizeof(public_key));
 
   return true;
 }

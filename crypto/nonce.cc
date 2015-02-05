@@ -9,11 +9,11 @@
 namespace crypto {
 
 Nonce::Nonce(size_t size) {
-	crypto::RandBytes(WriteInto(&nonce, size + 1), size);
+  crypto::RandBytes(WriteInto(&nonce, size + 1), size);
 }
 
 Nonce::operator std::string() const {
-	return nonce;
+  return nonce;
 }
 
 }  // namespace crypto

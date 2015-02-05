@@ -23,7 +23,6 @@ executable("crypto_test") {
   include_dirs = [
     "chrome",
   ]
-  cflags = [ "-std=gnu++11" ]
   libs = [
     "pthread",
     "event",

@@ -5,6 +5,8 @@
 #ifndef CRYPTO_JUST_FAST_KEYING_H_
 #define CRYPTO_JUST_FAST_KEYING_H_
 
+#include <string>
+
 #include "crypto/nonce.h"
 #include "crypto/p256_key_exchange.h"
 
@@ -13,7 +15,7 @@ namespace crypto {
 // Just Fast Keying payload
 class JustFastKeying {
  public:
- 	JustFastKeying();
+  JustFastKeying();
 
   operator std::string () const;
   int Length() const;
@@ -21,9 +23,9 @@ class JustFastKeying {
  private:
   enum {
     // Nonce length, 256 bits
-  	kNonceLength = 32,
+    kNonceLength = 32,
 
-  	// Handshake version, currently 1
+    // Handshake version, currently 1
     kVersion = 1,
 
     // Negotiation type 9 (the only one supported)
@@ -33,7 +35,7 @@ class JustFastKeying {
     kPhase   = 0,
   };
 
- 	Nonce nonce_;
+  Nonce nonce_;
 
   // P256 curve public key in X.509 format
   P256KeyExchange pub_key_;
