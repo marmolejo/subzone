@@ -8,47 +8,53 @@ config("default_include_dirs") {
 
 config("compiler") {
   cflags_common = [
-    "-fcolor-diagnostics",
+#    "-fcolor-diagnostics",
     "-Wendif-labels",
     "-Werror",
     "-Wno-missing-field-initializers",
     "-Wno-unused-parameter",
-    "-Wno-c++11-narrowing",
+#    "-Wno-c++11-narrowing",
     "-Wno-char-subscripts",
-    "-Wno-covered-switch-default",
-    "-Wno-deprecated-register",
-    "-Wno-unneeded-internal-declaration",
-    "-Wno-reserved-user-defined-literal",
-    "-Wno-inconsistent-missing-override",
+#    "-Wno-covered-switch-default",
+#    "-Wno-deprecated-register",
+#    "-Wno-unneeded-internal-declaration",
+#    "-Wno-reserved-user-defined-literal",
+#    "-Wno-inconsistent-missing-override",
     "-fvisibility=hidden",
-    "-Xclang",
-    "-load",
-    "-Xclang",
-    "/home/zeus/c/third_party/llvm-build/Release+Asserts/lib/libFindBadConstructs.so",
-    "-Xclang",
-    "-add-plugin",
-    "-Xclang",
-    "find-bad-constructs",
-    "-Wheader-hygiene",
-    "-Wstring-conversion",
+#    "-Xclang",
+#    "-load",
+#    "-Xclang",
+#    "/home/zeus/c/third_party/llvm-build/Release+Asserts/lib/libFindBadConstructs.so",
+#    "-Xclang",
+#    "-add-plugin",
+#    "-Xclang",
+#    "find-bad-constructs",
+#    "-Wheader-hygiene",
+#    "-Wstring-conversion",
     "-Wno-unused-result",
     "-Wno-format",
-    "-fno-threadsafe-statics",
-    "-fvisibility-inlines-hidden",
-    "-Wno-undefined-bool-conversion",
-    "-Wno-tautological-undefined-compare",
-    "-fno-rtti",
+#    "-fno-threadsafe-statics",
+#    "-fvisibility-inlines-hidden",
+#    "-Wno-undefined-bool-conversion",
+#    "-Wno-tautological-undefined-compare",
+#    "-fno-rtti",
     "-fno-exceptions",
     "-Wno-deprecated",
+    "-ggdb",
+    "-O0",
   ]
 
-  cflags_cc = cflags_common + [ "-std=c++11" ]
+  cflags_cc = cflags_common + [ "-std=c++14" ]
   cflags = cflags_common
 }
 
 gcc_toolchain("x64") {
-  cc = "/home/zeus/c/third_party/llvm-build/Release+Asserts/bin/clang"
-  cxx = "/home/zeus/c/third_party/llvm-build/Release+Asserts/bin/clang++"
+#  cc = getenv("CC")
+#  cxx = getenv("CXX")
+#  cc = "/home/zeus/c/third_party/llvm-build/Release+Asserts/bin/clang"
+#  cxx = "/home/zeus/c/third_party/llvm-build/Release+Asserts/bin/clang++"
+  cc = "gcc"
+  cxx = "g++"
 
   ar = "ar"
   ld = cxx

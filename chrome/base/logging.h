@@ -9,6 +9,7 @@
 #include <string>
 #include <cstring>
 #include <sstream>
+#include <iostream>
 
 #include "base/base_export.h"
 #include "base/basictypes.h"
@@ -649,6 +650,19 @@ const LogSeverity LOG_DCHECK = LOG_INFO;
 #define DPCHECK(condition)                                              \
   __analysis_assume(!!(condition)),                                     \
   LAZY_STREAM(PLOG_STREAM(DCHECK), false)                               \
+  << "Check failed: " #condition ". "
+
+#elif defined(CLANG_ANALYZER)
+
+// Simplify definition of DCHECK for the analyzer
+#define DCHECK(condition)                                               \
+  (!(condition) ? abort() : (void)0);                                   \
+  LAZY_STREAM(LOG_STREAM(DCHECK), DCHECK_IS_ON ? !(condition) : false)  \
+  << "Check failed: " #condition ". "
+
+#define DPCHECK(condition)                                              \
+  (!(condition) ? abort() : (void)0);                                   \
+  LAZY_STREAM(PLOG_STREAM(DCHECK), DCHECK_IS_ON ? !(condition) : false) \
   << "Check failed: " #condition ". "
 
 #else  // _PREFAST_

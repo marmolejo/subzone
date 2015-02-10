@@ -47,16 +47,16 @@ Handshake::operator std::string () {
 
   message_.append(iv_);
   rijndael_.Encrypt(crypto::SHA256HashString(static_cast<std::string>(jfk1_)),
-                    &message_);
+                    message_);
 
   // encrypt length
   int length = jfk1_.Length();
   char L[] = { static_cast<char>(length>>8),
                static_cast<char>(0xff & length) };
-  rijndael_.Encrypt(base::StringPiece(L, sizeof(L)), &message_);
+  rijndael_.Encrypt(base::StringPiece(L, sizeof(L)), message_);
 
   // encrypt payload
-  rijndael_.Encrypt(static_cast<std::string>(jfk1_), &message_);
+  rijndael_.Encrypt(static_cast<std::string>(jfk1_), message_);
 
   std::string rnd_bytes;
   crypto::RandBytes(WriteInto(&rnd_bytes, padding_length_+1), padding_length_);

@@ -99,7 +99,7 @@ static_library("boringssl") {
   #  } else if (is_win) {
   #    deps += [ ":boringssl_asm" ]
   #  } else {
-  #    defines += [ "OPENSSL_NO_ASM" ]
+      defines += [ "OPENSSL_NO_ASM" ]
   #  }
   #} else if (cpu_arch == "x86") {
   #  if (is_mac) {

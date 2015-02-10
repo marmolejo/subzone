@@ -6,7 +6,11 @@ group("root") {
 
 executable("crypto_test") {
   sources = [
+    "crypto/ssl/cfb256.c",
+    "crypto/ssl/cfb256_wrapper.c",
+    "crypto/ssl/rijndael.c",
     "crypto/rijndael.cc",
+    "crypto/rijndael_test.cc",
     "crypto/p256_key_exchange.cc",
     "crypto/p256_key_exchange_test.cc",
     "crypto/just_fast_keying.cc",
@@ -19,9 +23,12 @@ executable("crypto_test") {
 
   defines = [
     "_DEBUG",
+    "DCHECK_ALWAYS_ON=1",
+    "CLANG_ANALYZER=1",
   ]
   include_dirs = [
     "chrome",
+    "third_party/boringssl/src/crypto",
   ]
   libs = [
     "pthread",
@@ -32,5 +39,25 @@ executable("crypto_test") {
     "//chrome",
     "//third_party/gtest",
     "//third_party/boringssl",
+  ]
+}
+
+executable("test") {
+  sources = [
+    "test/dcheck.cc",
+  ]
+  defines = [
+    "_DEBUG",
+    "DCHECK_ALWAYS_ON=1",
+    "CLANG_ANALYZER=1",
+  ]
+  include_dirs = [
+    "chrome",
+  ]
+  deps = [
+    "//chrome",
+  ]
+  libs = [
+    "pthread",
   ]
 }
