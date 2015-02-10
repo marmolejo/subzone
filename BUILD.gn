@@ -41,23 +41,3 @@ executable("crypto_test") {
     "//third_party/boringssl",
   ]
 }
-
-executable("test") {
-  sources = [
-    "test/dcheck.cc",
-  ]
-  defines = [
-    "_DEBUG",
-    "DCHECK_ALWAYS_ON=1",
-    "CLANG_ANALYZER=1",
-  ]
-  include_dirs = [
-    "chrome",
-  ]
-  deps = [
-    "//chrome",
-  ]
-  libs = [
-    "pthread",
-  ]
-}
