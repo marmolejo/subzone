@@ -181,7 +181,8 @@ int UDPSocketLibevent::SendToOrWrite(IOBuffer* buf,
                                      const CompletionCallback& callback) {
   DCHECK(CalledOnValidThread());
   DCHECK_NE(kInvalidSocket, socket_);
-  DCHECK(!callback.is_null());  // Synchronous operation not supported
+  // We don't care currently about the completion
+  // DCHECK(!callback.is_null());  // Synchronous operation not supported
   DCHECK_GT(buf_len, 0);
 
   int result = InternalSendTo(buf, buf_len, address);
