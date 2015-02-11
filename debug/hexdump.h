@@ -7,20 +7,8 @@
 
 #include "base/strings/string_piece.h"
 
-namespace base {
-namespace debug {
+#define h(var) hexdump(#var,var)
 
-class Hexdump {
- public:
- 	Hexdump(base::StringPiece sp);
-
-  friend std::ostream& operator<< (std::ostream& stream, const Hexdump& hd);
-
- private:
- 	std::string contents_;
-};
-
-}  // namespace debug
-}  // namespace base
+void hexdump(base::StringPiece label, base::StringPiece sp);
 
 #endif  // BASE_DEBUG_HEXDUMP_H_

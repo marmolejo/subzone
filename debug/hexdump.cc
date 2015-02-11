@@ -5,19 +5,15 @@
 #include "debug/hexdump.h"
 #include <sstream>
 #include <iomanip>
+#include <iostream>
 
-namespace base {
-namespace debug {
+void hexdump(base::StringPiece label, base::StringPiece sp) {
+  std::cout << label << ":" << std::endl;
 
-Hexdump::Hexdump(base::StringPiece sp)
-  : contents_(sp.as_string()) {
-}
-
-std::ostream& operator<< (std::ostream& stream, const Hexdump& hd) {
-  std::istringstream is(hd.contents_);
+  std::istringstream is(sp.as_string());
   unsigned long address = 0;
 
-  stream << std::hex << std::setfill('0');
+  std::cout << std::hex << std::setfill('0');
   while( is.good() ) {
     int nread;
     char buf[16];
@@ -26,31 +22,28 @@ std::ostream& operator<< (std::ostream& stream, const Hexdump& hd) {
     if( nread == 0 ) break;
 
     // Show the address
-    stream << std::setw(8) << address;
+    std::cout << std::setw(8) << address;
 
     // Show the hex codes
     for( int i = 0; i < 16; i++ )
     {
-      if( i % 8 == 0 ) stream << ' ';
+      if( i % 8 == 0 ) std::cout << ' ';
       if( i < nread )
-        stream << ' ' << std::setw(2) << std::hex << (uint16_t)(buf[i] & 0x00ff);
+        std::cout << ' ' << std::setw(2) << std::hex << (uint16_t)(buf[i] & 0x00ff);
       else
-        stream << "   ";
+        std::cout << "   ";
     }
 
     // Show printable characters
-    stream << "  ";
+    std::cout << "  ";
     for( int i = 0; i < nread; i++)
     {
-      if( buf[i] < 32 ) stream << '.';
-      else stream << buf[i];
+      if( buf[i] < 32 ) std::cout << '.';
+      else std::cout << buf[i];
     }
 
-    stream << "\n";
+    std::cout << "\n";
     address += 16;
   }
-  return stream;
-}
 
-}  // namespace debug
-}  // namespace base
+}
