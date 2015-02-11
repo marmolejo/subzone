@@ -3,24 +3,23 @@
 // found in the LICENSE file.
 
 #include "crypto/handshake.h"
+
+#include "base/strings/string_util.h"
 #include "crypto/random.h"
 #include "base/rand_util.h"
 #include "base/base64.h"
 #include "crypto/sha2.h"
-#include "base/strings/string_util.h"
 
 namespace crypto {
 
 Handshake::Handshake(base::StringPiece i0, base::StringPiece i1)
-  : iv_(kBlockSize),
-    pre_padding_length_(2 * kBlockSize + 2 + jfk1_.Length()),
-    padding_length_(base::RandUint64() % std::min(
-       static_cast<int>(kMinPaddingLength),
-       kMaxFreenetPacketSize - pre_padding_length_)),
-    rijndael_(BuildKey(i0, i1), static_cast<std::string>(iv_)) {
-}
-
-Handshake::~Handshake() {
+    : iv_(kBlockSize),
+      pre_padding_length_(2 * kBlockSize + 2 + jfk1_.Length()),
+      padding_length_(base::RandUint64() % std::min(
+          static_cast<int>(kMinPaddingLength),
+          kMaxFreenetPacketSize - pre_padding_length_)),
+      rijndael_(BuildKey(i0, i1), static_cast<std::string>(iv_)) {
+  DCHECK_GE(kMaxFreenetPacketSize, pre_padding_length_);
 }
 
 // static
@@ -58,9 +57,11 @@ Handshake::operator std::string () {
   // encrypt payload
   rijndael_.Encrypt(static_cast<std::string>(jfk1_), message_);
 
-  std::string rnd_bytes;
-  crypto::RandBytes(WriteInto(&rnd_bytes, padding_length_+1), padding_length_);
-  message_.append(rnd_bytes);
+  if (padding_length_) {
+    std::string rnd_bytes;
+    crypto::RandBytes(WriteInto(&rnd_bytes, padding_length_+1), padding_length_);
+    message_.append(rnd_bytes);
+  }
 
   return message_;
 }

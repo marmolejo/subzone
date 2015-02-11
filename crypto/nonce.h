@@ -18,7 +18,7 @@ class Nonce {
   operator std::string() const;
 
  private:
-  std::string nonce;
+  std::string nonce_;
 };
 
 }  // namespace crypto

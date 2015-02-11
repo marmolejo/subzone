@@ -8,6 +8,7 @@ executable("crypto_test") {
   sources = [
     "debug/hexdump.cc",
     "crypto/handshake.cc",
+    "crypto/handshake_unittest.cc",
     "crypto/just_fast_keying.cc",
     "crypto/just_fast_keying_unittest.cc",
     "crypto/nonce.cc",

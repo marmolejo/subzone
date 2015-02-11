@@ -16,9 +16,13 @@ namespace crypto {
 class Handshake {
  public:
   Handshake(base::StringPiece i0, base::StringPiece i1);
-  ~Handshake();
+
+  static std::string BuildKey(base::StringPiece i0, base::StringPiece i1);
 
   operator std::string ();
+
+  // JFK accessor
+  const JustFastKeying* getJFK() const { return &jfk1_; }
 
  private:
   enum {
@@ -26,8 +30,6 @@ class Handshake {
     kMaxFreenetPacketSize = 1232,
     kMinPaddingLength = 100,
   };
-
-  static std::string BuildKey(base::StringPiece i0, base::StringPiece i1);
 
   JustFastKeying jfk1_;
   Nonce iv_;
