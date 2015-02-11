@@ -4,10 +4,10 @@
 
 #include "crypto/handshake.h"
 
+#include "base/base64.h"
+#include "base/rand_util.h"
 #include "base/strings/string_util.h"
 #include "crypto/random.h"
-#include "base/rand_util.h"
-#include "base/base64.h"
 #include "crypto/sha2.h"
 
 namespace crypto {

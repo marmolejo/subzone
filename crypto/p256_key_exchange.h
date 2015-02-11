@@ -6,7 +6,6 @@
 #define CRYPTO_P256_KEY_EXCHANGE_H_
 
 #include <string>
-
 #include "base/strings/string_piece.h"
 #include "crypto/scoped_openssl_types.h"
 

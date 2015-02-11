@@ -2,12 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "crypto/rijndael.h"
+
 #include <vector>
 #include "base/logging.h"
-#include "gtest/gtest.h"
-#include "crypto/rijndael.h"
 #include "crypto/ssl/rijndael.h"
 #include "crypto/ssl/cfb256.h"
+#include "gtest/gtest.h"
 
 namespace crypto {
 namespace test {

@@ -50,12 +50,10 @@
  * This is just the crypto/modes/cfb.c from boringssl with 256-bit block size
  */
 
+#include "crypto/ssl/cfb256.h"
+
 #include <assert.h>
 #include <string.h>
-
-#include "crypto/ssl/cfb256.h"
-//#include "internal.h"
-
 
 void CRYPTO_cfb256_encrypt(const uint8_t *in, uint8_t *out, size_t len,
                            const void *key, uint8_t ivec[32], int *num, int enc,

@@ -47,10 +47,9 @@
  * ==================================================================== */
 
 #include "crypto/ssl/rijndael.h"
-#include "aes/internal.h"
-
 #include <assert.h>
 #include <stdio.h>
+#include "aes/internal.h"
 
 /*
  * TODO(zeus): We don't have an assembly implementation for Rijndael 256,

@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "crypto/just_fast_keying.h"
+
 #include "base/logging.h"
 #include "gtest/gtest.h"
-
-#include "crypto/just_fast_keying.h"
 
 namespace crypto {
 namespace test {

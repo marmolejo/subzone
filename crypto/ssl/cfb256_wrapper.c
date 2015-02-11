@@ -9,8 +9,8 @@
  * Rijndael-256 block cipher and CFB256 mode.
  */
 
-#include "crypto/ssl/rijndael.h"
 #include "crypto/ssl/cfb256.h"
+#include "crypto/ssl/rijndael.h"
 
 void RIJNDAEL256_cfb256_encrypt(const uint8_t *in, uint8_t *out,
                                 size_t length, const RIJNDAEL256_KEY *key,

@@ -3,7 +3,6 @@
 // found in the LICENSE file.
 
 #include "net/darknet_auth.h"
-#include "debug/hexdump.h"
 
 #include "base/logging.h"
 #include "gtest/gtest.h"

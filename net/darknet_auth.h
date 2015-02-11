@@ -6,8 +6,8 @@
 #define NET_DARKNET_AUTH_H_
 
 #include "base/strings/string_piece.h"
-#include "net/udp/udp_client_socket.h"
 #include "crypto/handshake.h"
+#include "net/udp/udp_client_socket.h"
 
 namespace net {
 

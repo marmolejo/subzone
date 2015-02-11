@@ -6,7 +6,6 @@
 #define CRYPTO_JUST_FAST_KEYING_H_
 
 #include <string>
-
 #include "crypto/nonce.h"
 #include "crypto/p256_key_exchange.h"
 

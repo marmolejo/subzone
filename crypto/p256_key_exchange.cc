@@ -3,8 +3,9 @@
 // found in the LICENSE file.
 
 #include "crypto/p256_key_exchange.h"
-#include <openssl/x509.h>
+
 #include <string>
+#include <openssl/x509.h>
 #include "base/logging.h"
 
 using base::StringPiece;

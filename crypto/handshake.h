@@ -6,7 +6,6 @@
 #define CRYPTO_HANDSHAKE_H_
 
 #include <string>
-
 #include "base/strings/string_piece.h"
 #include "crypto/just_fast_keying.h"
 #include "crypto/rijndael.h"

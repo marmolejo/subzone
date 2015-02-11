@@ -7,7 +7,8 @@
 #ifndef OPENSSL_HEADER_CFB256_H
 #define OPENSSL_HEADER_CFB256_H
 
-#include <openssl/base.h>
+#include <stdint.h>
+#include <stddef.h>
 
 #if defined(__cplusplus)
 extern "C" {

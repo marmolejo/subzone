@@ -3,10 +3,10 @@
 // found in the LICENSE file.
 
 #include "crypto/handshake.h"
-#include <iostream>
+
 #include <memory>
-#include "base/logging.h"
 #include "gtest/gtest.h"
+#include "base/logging.h"
 #include "crypto/sha2.h"
 
 namespace crypto {
