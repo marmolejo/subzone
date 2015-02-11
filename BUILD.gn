@@ -12,12 +12,12 @@ executable("crypto_test") {
     "crypto/rijndael.cc",
     "crypto/rijndael_test.cc",
     "crypto/p256_key_exchange.cc",
-    "crypto/p256_key_exchange_test.cc",
+    "crypto/p256_key_exchange_unittest.cc",
     "crypto/just_fast_keying.cc",
     "crypto/nonce.cc",
     "crypto/handshake.cc",
     "net/darknet_auth.cc",
-    "net/darknet_auth_test.cc",
+    "net/darknet_auth_unittest.cc",
     "debug/hexdump.cc",
   ]
 

@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include <vector>
 #include "base/logging.h"
 #include "gtest/gtest.h"
 #include "crypto/rijndael.h"
@@ -72,7 +73,7 @@ TEST(Rijndael256CFB, Key0Plain0) {
     Rijndael r(kKey0, kIV[i]);
     r.Encrypt(kPlainText0, result);
 
-    ASSERT_TRUE(result.compare(kCipher[i]) == 0);
+    EXPECT_EQ(result.compare(kCipher[i]), 0);
   }
 }
 
@@ -80,7 +81,7 @@ TEST(Rijndael256CFB, Key0Plain0) {
 // new bytes to refill the buffer. kCipher bytes were tested against the Java
 // Rijndael implementation.
 TEST(Rijndael256CFB, Key0IV0) {
-  const char kPlaintextBytes [64] = {
+  const char kPlaintextBytes[64] = {
     37, 49, -10, 60, 88, -18, 16, -47,
     64, -75, 17, 32, 71, -38, 56, -78,
     97, 50, -94, -33, -117, 26, 120, -5,
@@ -113,7 +114,7 @@ TEST(Rijndael256CFB, Key0IV0) {
   for (int j(1); j <= 10; ++j) {
     std::string result;
     r.Encrypt(std::string(&kPlaintextBytes[i], j), result);
-    ASSERT_TRUE(result.compare(kCipher[j-1]) == 0);
+    EXPECT_EQ(result.compare(kCipher[j-1]), 0);
     i+=j;
   }
 }

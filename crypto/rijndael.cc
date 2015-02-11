@@ -8,7 +8,7 @@ namespace crypto {
 
 Rijndael::Rijndael(base::StringPiece key, base::StringPiece iv)
     : num_(0) {
-  DCHECK(key.length()==16 || key.length()==24 || key.length()==32);
+  DCHECK(key.length() == 16 || key.length() == 24 || key.length() == 32);
 
   // We only support 256-bit block sizes
   DCHECK_EQ(iv.length(), kBlockSize);
