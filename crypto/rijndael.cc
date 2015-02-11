@@ -20,6 +20,13 @@ Rijndael::Rijndael(base::StringPiece key, base::StringPiece iv)
                               key.length()*8, &enc_key_);
 }
 
+void Rijndael::SetIV(base::StringPiece iv) {
+  // We only support 256-bit block sizes
+  DCHECK_EQ(iv.length(), kBlockSize);
+
+  iv.copy(reinterpret_cast<char *>(iv_), kBlockSize);
+}
+
 bool Rijndael::Encrypt(const base::StringPiece in, std::string &out) {
   auto s(out.size());
   out.resize(s + in.size());

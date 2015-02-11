@@ -16,6 +16,8 @@ class Rijndael {
  public:
   Rijndael(base::StringPiece key, base::StringPiece iv);
 
+  void SetIV(base::StringPiece iv);
+
   bool Encrypt(const base::StringPiece in, std::string &out);
   bool Decrypt(const base::StringPiece in, std::string &out);
 

@@ -68,12 +68,17 @@ TEST(Rijndael256CFB, Key0Plain0) {
   const std::string kPlainText0(32, '\0');
 
   for (int i(0); i < kIV.size(); ++i) {
-    std::string result;
+    // Rijndael 256 Encrypt test
+    Rijndael rijndael(kKey0, kIV[i]);
+    std::string cipher;
+    rijndael.Encrypt(kPlainText0, cipher);
+    EXPECT_EQ(cipher.compare(kCipher[i]), 0);
 
-    Rijndael r(kKey0, kIV[i]);
-    r.Encrypt(kPlainText0, result);
-
-    EXPECT_EQ(result.compare(kCipher[i]), 0);
+    // Rijndael 256 Decrypt test, we must set up same IV
+    rijndael.SetIV(kIV[i]);
+    std::string decrypted;
+    rijndael.Decrypt(cipher, decrypted);
+    EXPECT_EQ(decrypted.compare(kPlainText0), 0);
   }
 }
 
@@ -108,13 +113,24 @@ TEST(Rijndael256CFB, Key0IV0) {
   const std::string kKey0(32, '\0');
   const std::string kIV0(32, '\0');
 
-  Rijndael r(kKey0, kIV0);
+  Rijndael rijndael_enc(kKey0, kIV0);
+  Rijndael rijndael_dec(kKey0, kIV0);
 
   int i(0);
   for (int j(1); j <= 10; ++j) {
-    std::string result;
-    r.Encrypt(std::string(&kPlaintextBytes[i], j), result);
-    EXPECT_EQ(result.compare(kCipher[j-1]), 0);
+    // Encipher variable length
+    std::string cipher;
+    rijndael_enc.Encrypt(std::string(&kPlaintextBytes[i], j), cipher);
+    EXPECT_EQ(cipher.compare(kCipher[j-1]), 0);
+
+    // Cipher again
+    std::string decrypted;
+    rijndael_dec.Decrypt(cipher, decrypted);
+
+    // Results must be the same
+    EXPECT_EQ(decrypted.length(), j);
+    EXPECT_EQ(decrypted.compare(std::string(&kPlaintextBytes[i], j)), 0);
+
     i+=j;
   }
 }
