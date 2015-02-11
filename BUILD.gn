@@ -6,20 +6,20 @@ group("root") {
 
 executable("crypto_test") {
   sources = [
-    "crypto/ssl/cfb256.c",
-    "crypto/ssl/cfb256_wrapper.c",
-    "crypto/ssl/rijndael.c",
-    "crypto/rijndael.cc",
-    "crypto/rijndael_test.cc",
-    "crypto/p256_key_exchange.cc",
-    "crypto/p256_key_exchange_unittest.cc",
+    "debug/hexdump.cc",
+    "crypto/handshake.cc",
     "crypto/just_fast_keying.cc",
     "crypto/just_fast_keying_unittest.cc",
     "crypto/nonce.cc",
-    "crypto/handshake.cc",
+    "crypto/p256_key_exchange.cc",
+    "crypto/p256_key_exchange_unittest.cc",
+    "crypto/rijndael.cc",
+    "crypto/rijndael_test.cc",
+    "crypto/ssl/cfb256.c",
+    "crypto/ssl/cfb256_wrapper.c",
+    "crypto/ssl/rijndael.c",
     "net/darknet_auth.cc",
     "net/darknet_auth_unittest.cc",
-    "debug/hexdump.cc",
   ]
 
   defines = [
