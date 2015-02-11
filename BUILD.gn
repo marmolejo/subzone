@@ -14,6 +14,7 @@ executable("crypto_test") {
     "crypto/p256_key_exchange.cc",
     "crypto/p256_key_exchange_unittest.cc",
     "crypto/just_fast_keying.cc",
+    "crypto/just_fast_keying_unittest.cc",
     "crypto/nonce.cc",
     "crypto/handshake.cc",
     "net/darknet_auth.cc",
