@@ -1,5 +1,11 @@
-#ifndef OPENSSL_HEADER_RIJNDAEL_H
-#define OPENSSL_HEADER_RIJNDAEL_H
+/*
+ * Copyright 2015 The Subzone Authors. All rights reserved.
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef CRYPTO_SSL_RIJNDAEL_H_
+#define CRYPTO_SSL_RIJNDAEL_H_
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -51,4 +57,4 @@ void RIJNDAEL256_cfb256_encrypt(const uint8_t *in, uint8_t *out,
 }  /* extern C */
 #endif
 
-#endif  /* OPENSSL_HEADER_RIJNDAEL_H */
+#endif  /* CRYPTO_SSL_RIJNDAEL_H_ */

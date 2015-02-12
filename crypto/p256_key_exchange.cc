@@ -4,8 +4,8 @@
 
 #include "crypto/p256_key_exchange.h"
 
-#include <string>
 #include <openssl/x509.h>
+#include <string>
 #include "base/logging.h"
 
 using base::StringPiece;

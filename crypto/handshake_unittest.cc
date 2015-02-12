@@ -90,7 +90,7 @@ TEST(Handshake, EncryptDecrypt) {
     Rijndael rijndael(Handshake::BuildKey(kId1, kId2), iv);
 
     std::string message_dec;
-    rijndael.Decrypt(message_enc, message_dec);
+    rijndael.Decrypt(message_enc, &message_dec);
 
     // Get hash
     int pos(0);

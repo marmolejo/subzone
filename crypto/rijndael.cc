@@ -27,21 +27,25 @@ void Rijndael::SetIV(base::StringPiece iv) {
   iv.copy(reinterpret_cast<char *>(iv_), kBlockSize);
 }
 
-bool Rijndael::Encrypt(const base::StringPiece in, std::string &out) {
-  auto s(out.size());
-  out.resize(s + in.size());
+bool Rijndael::Encrypt(const base::StringPiece in, std::string* out) {
+  DCHECK(out);
+  auto s(out->size());
+  out->resize(s + in.size());
 
-  auto out_buf(&out[s]);
+  std::string &out_ref = *out;
+  auto out_buf(&out_ref[s]);
   RIJNDAEL256_cfb256_encrypt(reinterpret_cast<const uint8_t *>(in.data()),
                              reinterpret_cast<uint8_t *>(out_buf), in.size(),
                              &enc_key_, iv_, &num_, RIJNDAEL256_ENCRYPT);
 }
 
-bool Rijndael::Decrypt(const base::StringPiece in, std::string &out) {
-  auto s(out.size());
-  out.resize(s + in.size());
+bool Rijndael::Decrypt(const base::StringPiece in, std::string* out) {
+  DCHECK(out);
+  auto s(out->size());
+  out->resize(s + in.size());
 
-  auto out_buf(&out[s]);
+  std::string &out_ref = *out;
+  auto out_buf(&out_ref[s]);
   RIJNDAEL256_cfb256_encrypt(reinterpret_cast<const uint8_t *>(in.data()),
                              reinterpret_cast<uint8_t *>(out_buf), in.size(),
                              &enc_key_, iv_, &num_, RIJNDAEL256_DECRYPT);

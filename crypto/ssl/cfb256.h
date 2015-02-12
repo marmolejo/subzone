@@ -4,8 +4,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef OPENSSL_HEADER_CFB256_H
-#define OPENSSL_HEADER_CFB256_H
+#ifndef CRYPTO_SSL_CFB256_H_
+#define CRYPTO_SSL_CFB256_H_
 
 #include <stdint.h>
 #include <stddef.h>
@@ -38,4 +38,4 @@ void CRYPTO_cfb256_encrypt(const uint8_t *in, uint8_t *out, size_t len,
 }  /* extern C */
 #endif
 
-#endif  /* OPENSSL_HEADER_CFB256_H */
+#endif  // CRYPTO_SSL_CFB256_H_

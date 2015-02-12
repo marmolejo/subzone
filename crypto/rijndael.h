@@ -18,8 +18,8 @@ class Rijndael {
 
   void SetIV(base::StringPiece iv);
 
-  bool Encrypt(const base::StringPiece in, std::string &out);
-  bool Decrypt(const base::StringPiece in, std::string &out);
+  bool Encrypt(const base::StringPiece in, std::string* out);
+  bool Decrypt(const base::StringPiece in, std::string* out);
 
  private:
   enum { kBlockSize = 32, };
