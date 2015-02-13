@@ -1,3 +1,7 @@
+# Copyright 2015 The Subzone Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
 group("root") {
   deps = [
     ":crypto_test",
@@ -22,9 +26,10 @@ executable("crypto_test") {
     "net/darknet_auth.cc",
     "net/darknet_auth_unittest.cc",
   ]
-
+  cflags = [ "-fno-exceptions" ]
   defines = [
     "_DEBUG",
+    "USE_SYMBOLIZE",
     "DCHECK_ALWAYS_ON=1",
     "CLANG_ANALYZER=1",
   ]
@@ -41,5 +46,6 @@ executable("crypto_test") {
     "//chromium",
     "//third_party/gtest",
     "//third_party/boringssl",
+    "//third_party/cppcheck",
   ]
 }

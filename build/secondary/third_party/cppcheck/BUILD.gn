@@ -1,0 +1,85 @@
+# Copyright 2015 The Subzone Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+cppcheck_config = "third_party/cppcheck/cfg"
+
+config("cppcheck_config") {
+  defines = [
+    "_GLIBCXX_DEBUG",
+    "CFGDIR=\"${cppcheck_config}\"",
+  ]
+
+  include_dirs = [
+    "lib",
+    "externals/tinyxml",
+  ]
+}
+
+static_library("check") {
+  sources = [
+    "lib/check.cpp",
+    "lib/check64bit.cpp",
+    "lib/checkassert.cpp",
+    "lib/checkautovariables.cpp",
+    "lib/checkbool.cpp",
+    "lib/checkboost.cpp",
+    "lib/checkbufferoverrun.cpp",
+    "lib/checkclass.cpp",
+    "lib/checkcondition.cpp",
+    "lib/checkexceptionsafety.cpp",
+    "lib/checkinternal.cpp",
+    "lib/checkio.cpp",
+    "lib/checkleakautovar.cpp",
+    "lib/checkmemoryleak.cpp",
+    "lib/checknonreentrantfunctions.cpp",
+    "lib/checknullpointer.cpp",
+    "lib/checkobsolescentfunctions.cpp",
+    "lib/checkother.cpp",
+    "lib/checkpostfixoperator.cpp",
+    "lib/checksizeof.cpp",
+    "lib/checkstl.cpp",
+    "lib/checkstring.cpp",
+    "lib/checktype.cpp",
+    "lib/checkuninitvar.cpp",
+    "lib/checkunusedfunctions.cpp",
+    "lib/checkunusedvar.cpp",
+    "lib/checkvaarg.cpp",
+    "lib/cppcheck.cpp",
+    "lib/errorlogger.cpp",
+    "lib/executionpath.cpp",
+    "lib/library.cpp",
+    "lib/mathlib.cpp",
+    "lib/path.cpp",
+    "lib/preprocessor.cpp",
+    "lib/settings.cpp",
+    "lib/suppressions.cpp",
+    "lib/symboldatabase.cpp",
+    "lib/templatesimplifier.cpp",
+    "lib/timer.cpp",
+    "lib/token.cpp",
+    "lib/tokenize.cpp",
+    "lib/tokenlist.cpp",
+    "lib/valueflow.cpp",
+    "externals/tinyxml/tinyxml2.cpp",
+  ]
+
+  configs += [ ":cppcheck_config" ]
+}
+
+executable("cppcheck") {
+  sources = [
+    "cli/cmdlineparser.cpp",
+    "cli/cppcheckexecutor.cpp",
+    "cli/filelister.cpp",
+    "cli/main.cpp",
+    "cli/pathmatch.cpp",
+    "cli/threadexecutor.cpp",
+  ]
+
+  configs += [ ":cppcheck_config" ]
+
+  deps = [
+    ":check",
+  ]
+}

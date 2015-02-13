@@ -1,3 +1,7 @@
+# Copyright 2015 The Subzone Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
 import("//build/gcc_toolchain.gni")
 
 config("default_include_dirs") {
@@ -8,37 +12,14 @@ config("default_include_dirs") {
 
 config("compiler") {
   cflags_common = [
-#    "-fcolor-diagnostics",
     "-Wendif-labels",
     "-Werror",
     "-Wno-missing-field-initializers",
     "-Wno-unused-parameter",
-#    "-Wno-c++11-narrowing",
     "-Wno-char-subscripts",
-#    "-Wno-covered-switch-default",
-#    "-Wno-deprecated-register",
-#    "-Wno-unneeded-internal-declaration",
-#    "-Wno-reserved-user-defined-literal",
-#    "-Wno-inconsistent-missing-override",
     "-fvisibility=hidden",
-#    "-Xclang",
-#    "-load",
-#    "-Xclang",
-#    "/home/zeus/c/third_party/llvm-build/Release+Asserts/lib/libFindBadConstructs.so",
-#    "-Xclang",
-#    "-add-plugin",
-#    "-Xclang",
-#    "find-bad-constructs",
-#    "-Wheader-hygiene",
-#    "-Wstring-conversion",
     "-Wno-unused-result",
     "-Wno-format",
-#    "-fno-threadsafe-statics",
-#    "-fvisibility-inlines-hidden",
-#    "-Wno-undefined-bool-conversion",
-#    "-Wno-tautological-undefined-compare",
-#    "-fno-rtti",
-    "-fno-exceptions",
     "-Wno-deprecated",
     "-ggdb",
     "-O0",
@@ -49,10 +30,6 @@ config("compiler") {
 }
 
 gcc_toolchain("x64") {
-#  cc = getenv("CC")
-#  cxx = getenv("CXX")
-#  cc = "/home/zeus/c/third_party/llvm-build/Release+Asserts/bin/clang"
-#  cxx = "/home/zeus/c/third_party/llvm-build/Release+Asserts/bin/clang++"
   cc = "gcc"
   cxx = "g++"
 

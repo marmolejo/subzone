@@ -1,0 +1,17 @@
+This directory contains some files imported from the Chromium project
+(http://www.chromium.org/Home). Specifically:
+
+- gcc_toolchain.gni: this file is necessary for the GN build system to work,
+  it has the compiler toolchain definitions.
+
+- gn_helpers.py: this is used by gpyi_to_gn.py script to convert GPY files to
+  GN. Hopefully once GN definitions are fully used this won't be necessary.
+
+- gypi_to_gn.py: used by the boringssl asm builder. Takes an GYPI file and
+  transforms it to GN. When GN is fully used, this won't be necessary.
+
+- secondary/third_party/boringssl/*: these are used to build boringssl using
+  GN. Original files are in third_party/boringssl/
+
+- secondary/third_party/gtest/BUILD.gn: used by GN to build gtest. Original
+  file is in build/secondary/testing/gtest/BUILD.gn in Chromium sources.

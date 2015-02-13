@@ -4,23 +4,6 @@
 
 gtest_dir = "//third_party/gtest"
 
-gtest_exists =
-  (exec_script("//build/dir_exists.py",
-               [ rebase_path(gtest_dir,
-                             root_build_dir) ],
-               "trim string") == "True")
-
-if (!gtest_exists) {
-  print("Getting googletest...")
-
-  git_url = "https://chromium.googlesource.com/external/googletest.git"
-  git_rev = "be1868139ffe0ccd0e8e3b37292b84c821d9c8ad"
-
-  exec_script("//build/git_clone.py",
-              [ git_url, git_rev, rebase_path(gtest_dir) ],
-              "")
-}
-
 config("gtest_config") {
   visibility = [
     ":*",

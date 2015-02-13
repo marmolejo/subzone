@@ -27,8 +27,9 @@ def Main():
           matches.append(os.path.join(root, name))
 
   """Run linters against these files"""
-  subprocess.call(["/home/zeus/opt/depot_tools/cpplint.py"] + matches)
-  subprocess.call(["/home/zeus/bin/cppcheck", "--enable=all"] + matches)
+  subprocess.call(["third_party/depot_tools/cpplint.py"] + matches)
+
+  subprocess.call(["out/cppcheck", "--enable=all"] + matches)
 
 if __name__ == '__main__':
   sys.exit(Main())

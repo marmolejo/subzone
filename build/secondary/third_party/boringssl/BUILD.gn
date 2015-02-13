@@ -2,22 +2,16 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-boringssl_dir = "//third_party/boringssl/src"
+boringssl_gypi = "//third_party/boringssl/boringssl.gypi"
 
-boringssl_exists =
-  (exec_script("//build/dir_exists.py",
-               [ rebase_path(boringssl_dir,
+boringssl_preconf =
+  (exec_script("//build/file_exists.py",
+               [ rebase_path(boringssl_gypi,
                              root_build_dir) ],
                "trim string") == "True")
 
-if (!boringssl_exists) {
-  print("Getting boringssl...")
-
-  git_url = "https://boringssl.googlesource.com/boringssl.git"
-  git_rev = "66850ddec105f0be7bba400e64debb56f3e21104"
-
-  exec_script("//build/git_clone.py",
-              [ git_url, git_rev, rebase_path(boringssl_dir) ])
+if (!boringssl_preconf) {
+  print("Building asm files from boringssl...")
 
   exec_script("//third_party/boringssl/update_gypi_and_asm.py",
               [ rebase_path("//third_party/boringssl") ])
