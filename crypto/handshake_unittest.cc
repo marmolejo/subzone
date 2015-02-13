@@ -12,6 +12,7 @@
 namespace crypto {
 namespace test {
 
+// 3 random node identities.
 const std::string kId1 = "gAXIdY1ZIY5imCwcISPDmkUCfEf0iT463+k2PkAh8Cw";
 const std::string kId2 = "tMh1zG3Vy+c+dfeGqPRn+Df9Ich0K89U6SiAci2hgPk";
 const std::string kId3 = "HupvjSHPGi8aB1bXeyU0X79V1jLp/nIoc4ERtREO6SE";
@@ -64,6 +65,10 @@ TEST(Handshake, BuildKey) {
     -95, 30, 38, 15, 23, -25, 121, -40,
   };
 
+  // We build a ring of 3 nodes, this creates 6 keys, 2 per pair, as there is
+  // an outgoing and incoming key. They are compared to the results obtained
+  // from the Freenet reference daemon, as they must see each other and be able
+  // to communicate.
   EXPECT_EQ(Handshake::BuildKey(kId1, kId2).compare(kKey12), 0);
   EXPECT_EQ(Handshake::BuildKey(kId2, kId1).compare(kKey21), 0);
   EXPECT_EQ(Handshake::BuildKey(kId1, kId3).compare(kKey13), 0);
@@ -78,7 +83,7 @@ TEST(Handshake, BuildKey) {
 TEST(Handshake, EncryptDecrypt) {
   for (int i = 0; i < 5; i++) {
     Handshake hs(kId1, kId2);
-    std::string jfkstr(*hs.getJFK());
+    std::string jfkstr(hs.GetJfkAsString());
     std::string message(hs);
 
     // First get the IV

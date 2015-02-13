@@ -11,11 +11,16 @@
 
 namespace crypto {
 
+// JustFast Keying is the payload of the handshake message. It contains the
+// public ECDSA key in X509 format, so the other peer can check it.
+
 // Just Fast Keying payload
 class JustFastKeying {
  public:
   JustFastKeying();
 
+  // Use a std::string conversion operator to get the binary representation of
+  // this payload.
   operator std::string () const;
   int Length() const;
 
@@ -24,6 +29,7 @@ class JustFastKeying {
     // Nonce length, 256 bits
     kNonceLength = 32,
 
+    // These values are harcoded as we only support for the moment these modes.
     // Handshake version, currently 1
     kVersion = 1,
 
@@ -43,6 +49,8 @@ class JustFastKeying {
   char neg_type_ { kNegType };
   char phase_ { kPhase };
 
+  // The payload is built only once, on a read. This shouldn't change as its
+  // values are built on the constructor.
   mutable std::string payload_;
 };
 

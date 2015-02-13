@@ -4,7 +4,9 @@
 # found in the LICENSE file.
 
 """
-Performs some basic lint checks on the tree.
+Performs some basic lint checks on the tree. These are done via the cpplint.py
+coming from Chromium project and [Cppcheck](http://cppcheck.sourceforge.net).
+This script must be run before any commit.
 """
 import os
 import sys
@@ -12,9 +14,9 @@ import re
 import subprocess
 
 def Main():
-  """Search crypto and net directories for *.cc and *.h files"""
+  """Search own project directories for *.cc and *.h files"""
   matches = []
-  directories = [ 'crypto', 'net' ]
+  directories = [ 'crypto', 'net', 'debug' ]
 
   cc_re = re.compile(r'.+\.(cc|h)$', re.IGNORECASE)
 

@@ -19,11 +19,13 @@ const int kMaxSize = 291;
 
 // darknet handshake test. Pick a nonce, ECDH keypair, iv and padding length
 TEST(DarknetAuth, JFK1) {
-  for (int i(0); i < 10; ++i) {
     net::DarknetAuth da(my_identity, i1_identity, "127.0.0.1", kPort);
 
     // Client sends to the server.
     int bytes_sent { da.SendJFK1() };
+
+    // Don't know exactly how many bytes are sent, as there is an extra random
+    // bytes padded for security.
     EXPECT_GE(bytes_sent, kMinSize);
     EXPECT_LE(bytes_sent, kMaxSize);
   }

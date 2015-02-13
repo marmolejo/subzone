@@ -40,6 +40,7 @@ bool P256KeyExchange::CalculateSharedKey(const StringPiece& peer_public_value,
     return false;
   }
 
+  // Get the point in the EC from our private key and the peer's public.
   crypto::ScopedOpenSSL<EC_POINT, EC_POINT_free>::Type point(
       EC_POINT_new(EC_KEY_get0_group(private_key_.get())));
   if (!point.get() ||
@@ -71,10 +72,11 @@ StringPiece P256KeyExchange::public_value() const {
 base::StringPiece P256KeyExchange::GetX509Public() const {
   if (!public_key_x509_str_.empty()) return public_key_x509_str_;
 
-  // We get the public in X.509 format from the private key
+  // Get the public in X.509 format from the private key
   crypto::ScopedEVP_PKEY pkey { EVP_PKEY_new() };
   EVP_PKEY_set1_EC_KEY(pkey.get(), private_key_.get());
 
+  // i2d_PUBKEY does this transform to network format.
   uint8 *public_key { public_key_x509_ };
   i2d_PUBKEY(pkey.get(), &public_key);
   public_key_x509_str_.set(reinterpret_cast<char *>(public_key_x509_),
@@ -96,6 +98,7 @@ bool P256KeyExchange::GetPublicValueFromX509(
   const unsigned char *public_key_data {
     reinterpret_cast<const unsigned char *>(peer_public_x509.data()) };
 
+  // d2i_PUBKEY convert it back from network format
   crypto::ScopedEVP_PKEY pkey {
     d2i_PUBKEY(nullptr, &public_key_data, peer_public_x509.size()) };
   if (pkey.get() == nullptr) {
@@ -105,6 +108,7 @@ bool P256KeyExchange::GetPublicValueFromX509(
 
   const EC_KEY *ec_key = EVP_PKEY_get1_EC_KEY(pkey.get());
 
+  // With this we have the public key in a 'workable' format.
   uint8 public_key[kUncompressedP256PointBytes];
   if (EC_POINT_point2oct(EC_KEY_get0_group(ec_key),
                          EC_KEY_get0_public_key(ec_key),

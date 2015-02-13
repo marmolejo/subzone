@@ -642,16 +642,7 @@ void RIJNDAEL256_encrypt(const uint8_t *in, uint8_t *out,
   s5 = GETU32(in + 20) ^ rk[5];
   s6 = GETU32(in + 24) ^ rk[6];
   s7 = GETU32(in + 28) ^ rk[7];
-/*
-  const uint32_t *prk = rk;
-  printf("rk*:\n");
-  int i;
-  for(i=0; i<15; i++) {
-    printf("%08x %08x %08x %08x %08x %08x %08x %08x\n",
-        prk[0], prk[1], prk[2], prk[3], prk[4], prk[5], prk[6], prk[7]);
-    prk += 8;
-  }
-*/
+
   /*
    * Nr - 1 full rounds:
    */

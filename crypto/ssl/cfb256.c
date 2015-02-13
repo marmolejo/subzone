@@ -47,7 +47,8 @@
  * ==================================================================== */
 
 /*
- * This is just the crypto/modes/cfb.c from boringssl with 256-bit block size
+ * This is just the crypto/modes/cfb.c from boringssl with 256-bit block size,
+ * that is, in every place where it was read '16', substitute it by '32' :)
  */
 
 #include "crypto/ssl/cfb256.h"

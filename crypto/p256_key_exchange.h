@@ -11,12 +11,15 @@
 
 namespace crypto {
 
-// An ECDH random key
+// An ECDH P-256 random key
 class P256KeyExchange {
  public:
   P256KeyExchange();
   ~P256KeyExchange();
 
+  // CalculateSharedKey builds the shared key between two nodes, given a public
+  // key value in |peer_public_value|. |shared_key| is an output parameter that
+  // will get the ECDH shared key between two pairs.
   bool CalculateSharedKey(const base::StringPiece& peer_public_value,
                           std::string* shared_key) const;
   base::StringPiece public_value() const;

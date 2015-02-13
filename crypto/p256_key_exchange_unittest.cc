@@ -35,6 +35,7 @@ TEST(P256KeyExchange, SharedKeyX509) {
     ASSERT_TRUE(P256KeyExchange::GetPublicValueFromX509(bob_public_x509,
         &bob_public));
 
+    // These public keys must match
     ASSERT_EQ(alice_public, alice->public_value());
     ASSERT_EQ(bob_public, bob->public_value());
   }

@@ -11,12 +11,18 @@
 
 namespace net {
 
+// DarknetAuth sends the first auth packet for a Darknet connection to a
+// specified IP address. This includes sending the handshake.
 class DarknetAuth {
  public:
+  // To build the object we need the identities of the two peers, specified in
+  // |my_id| and |peer_id| and the IP address in |ip_str| and |port| to send
+  // the UDP packet.
   DarknetAuth(base::StringPiece my_id, base::StringPiece peer_id,
               base::StringPiece ip_str, uint16 port);
   ~DarknetAuth();
 
+  // The packet is actually sent by calling to SendJFK1()
   int SendJFK1();
 
  private:
@@ -24,9 +30,11 @@ class DarknetAuth {
   static void CreateUDPAddress(base::StringPiece ip_str, uint16 port,
                                IPEndPoint* address);
 
+  // The handshake object containing the IV, hash and payload
   crypto::Handshake hs_;
+
   UDPClientSocket client_;
-  CompletionCallback cc_;
+  CompletionCallback cc_;  // This should fire up when the message is sent.
 };
 
 }  // namespace net
