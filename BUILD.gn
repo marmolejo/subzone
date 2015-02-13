@@ -29,7 +29,7 @@ executable("crypto_test") {
     "CLANG_ANALYZER=1",
   ]
   include_dirs = [
-    "chrome",
+    "chromium",
     "third_party/boringssl/src/crypto",
   ]
   libs = [
@@ -38,7 +38,7 @@ executable("crypto_test") {
     "icuuc"
   ]
   deps = [
-    "//chrome",
+    "//chromium",
     "//third_party/gtest",
     "//third_party/boringssl",
   ]
