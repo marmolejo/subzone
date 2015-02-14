@@ -24,3 +24,6 @@ third_party/depot_tools/ninja -C out
 ```
 
 This will generate a binary file **out/crypto_test**, which contain all tests.
+
+For convenience, you can add ```build/tools``` and ```third_party/depot_tools```
+to PATH environment variable.
