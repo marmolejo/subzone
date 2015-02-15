@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "crypto/just_fast_keying.h"
+#include "crypto/jfk0.h"
 
 #include "base/logging.h"
 #include "gtest/gtest.h"
@@ -10,9 +10,10 @@
 namespace crypto {
 namespace test {
 
-// A simple test that checks the correct size of the payload
-TEST(JustFastKeying, Size) {
-  JustFastKeying jfk;
+// A simple test that checks the correct size of the payload, just for the
+// first message.
+TEST(Jfk0, Size) {
+  Jfk0 jfk;
 
   std::string jfk_str(jfk);
 

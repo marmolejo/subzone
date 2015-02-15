@@ -2,18 +2,26 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "crypto/just_fast_keying.h"
+#include "crypto/jfk0.h"
 
 #include <string>
 #include "crypto/sha2.h"
 
 namespace crypto {
 
-JustFastKeying::JustFastKeying()
+Jfk0::Jfk0()
   : nonce_(kNonceLength) {
 }
 
-JustFastKeying::operator std::string () const {
+Jfk0::~Jfk0() {
+}
+
+bool Jfk0::Init(base::StringPiece in) {
+  // As the first message to be sent, ignore the parameter |in|.
+  return true;
+}
+
+Jfk0::operator std::string () const {
   if (!payload_.empty()) return payload_;
 
   const char header[] = { version_, neg_type_, phase_ };
@@ -31,7 +39,7 @@ JustFastKeying::operator std::string () const {
 }
 
 // To get the length, we must have built the payload string.
-int JustFastKeying::Length() const {
+int Jfk0::Length() const {
   return static_cast<std::string>(*this).length();
 }
 

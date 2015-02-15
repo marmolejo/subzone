@@ -5,9 +5,10 @@
 #ifndef CRYPTO_HANDSHAKE_H_
 #define CRYPTO_HANDSHAKE_H_
 
+#include <memory>
 #include <string>
 #include "base/strings/string_piece.h"
-#include "crypto/just_fast_keying.h"
+#include "crypto/jfk.h"
 #include "crypto/rijndael.h"
 
 namespace crypto {
@@ -18,20 +19,28 @@ namespace crypto {
 // and |i1| parameters.
 class Handshake {
  public:
-  Handshake(base::StringPiece i0, base::StringPiece i1);
+  // We need to know if we are the initiators or the other peer initiated
+  // the handshake. |initiator| holds this value.
+  Handshake(base::StringPiece i0, base::StringPiece i1, bool initiator);
 
   // BuildKey gets the simmetric Rijndael key that is derived from the
   // identities of the two peers.
   static std::string BuildKey(base::StringPiece i0, base::StringPiece i1);
 
-  // Implicit conversion to std::string will yield the string of bytes of the
-  // full packet, including the extra random padding.
-  operator std::string ();
+  // NextPhase checks in which phase in the negotiation we are, taking an
+  // incoming message |in|, checking the correct length and hash, then building
+  // the next message in |out|. If incoming message has some error, according
+  // with the current phase, return false.
+  bool NextPhase(base::StringPiece in, std::string *out);
 
   // JFK accessor
   std::string GetJfkAsString() const;
 
  private:
+  // Implicit conversion to std::string will yield the string of bytes of the
+  // full packet, including the extra random padding.
+  void BuildAuthPacket(std::string *out);
+
   enum {
     kBlockSize = 32,  // 256-bit blocs, for the IV
 
@@ -41,7 +50,10 @@ class Handshake {
   };
 
   // This is the "content" of the message, the public ECDSA key
-  JustFastKeying jfk1_;
+  std::unique_ptr<Jfk> jfk_;
+
+  // Depending if we are initiators or not, it is phase 0 or 1
+  unsigned phase_;
 
   Nonce iv_;  // A random nonce
   int pre_padding_length_;
@@ -49,9 +61,6 @@ class Handshake {
 
   // Rijndael 256 CFB encryptor
   Rijndael rijndael_;
-
-  // The bytes of the final message
-  std::string message_;
 };
 
 }  // namespace crypto

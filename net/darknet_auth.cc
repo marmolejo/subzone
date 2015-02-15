@@ -12,7 +12,7 @@ namespace net {
 
 DarknetAuth::DarknetAuth(base::StringPiece my_id, base::StringPiece peer_id,
                          base::StringPiece ip_str, uint16 port)
-  : hs_(my_id, peer_id),
+  : hs_(my_id, peer_id, true),  // We are the initiators.
     client_(DatagramSocket::DEFAULT_BIND, RandIntCallback()) {
   IPEndPoint srv_addr;
   CreateUDPAddress(ip_str, port, &srv_addr);
@@ -37,7 +37,9 @@ void DarknetAuth::CreateUDPAddress(base::StringPiece ip_str, uint16 port,
 }
 
 int DarknetAuth::SendJFK1() {
-  std::string msg { static_cast<std::string>(hs_) };
+  // NextPhase will build the first message to send to peer.
+  std::string msg;
+  hs_.NextPhase("", &msg);
   int length = static_cast<int>(msg.length());
 
   scoped_refptr<StringIOBuffer> io_buffer(new StringIOBuffer(msg));

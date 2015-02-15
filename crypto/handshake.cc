@@ -7,23 +7,20 @@
 #include "base/base64.h"
 #include "base/rand_util.h"
 #include "base/strings/string_util.h"
+#include "crypto/jfk0.h"
 #include "crypto/random.h"
 #include "crypto/sha2.h"
 
 namespace crypto {
 
-Handshake::Handshake(base::StringPiece i0, base::StringPiece i1)
-    : iv_(kBlockSize),
-      pre_padding_length_(2 * kBlockSize + 2 + jfk1_.Length()),
-      // Will be padding at max 100 bytes extra, it can be less if the package
-      // is big enough.
-      padding_length_(base::RandUint64() % std::min(
-          static_cast<int>(kMinPaddingLength),
-          kMaxFreenetPacketSize - pre_padding_length_)),
+Handshake::Handshake(base::StringPiece i0, base::StringPiece i1,
+                     bool initiator)
+    : jfk_(std::make_unique<Jfk0>()),  // Currently we build only the first
+      phase_(initiator ? 0 : 1),
+      iv_(kBlockSize),
       rijndael_(BuildKey(i0, i1), static_cast<std::string>(iv_)) {
-  // The payload cannot be larger than the MaxFreenetPacketSize, otherwise it
-  // won't fit.
-  DCHECK_GE(kMaxFreenetPacketSize, pre_padding_length_);
+  DCHECK_EQ(i0.length(), 43);  // base64 encoding of an Identity
+  DCHECK_EQ(i0.length(), 43);
 }
 
 // This method builds the symmetric outgoing Rijndael key, the incoming key is
@@ -51,38 +48,65 @@ std::string Handshake::BuildKey(base::StringPiece i0, base::StringPiece i1) {
   return out_key;
 }
 
-Handshake::operator std::string () {
-  if (!message_.empty()) return message_;
+bool Handshake::NextPhase(base::StringPiece in, std::string *out) {
+  DCHECK(out);
+
+  // Initialize properly the current phase we are with the incoming message.
+  // If incoming message is malformed, return false.
+  if (!jfk_->Init(in)) {
+    DVLOG(1) << "Wrong format for incoming message in phase " << phase_;
+    return false;
+  }
+
+  // Once the payload is done for the next message, just build the auth packet
+  // by encrypting the payload and adding the hash.
+  BuildAuthPacket(out);
+
+  return true;
+}
+
+void Handshake::BuildAuthPacket(std::string *out) {
+  DCHECK(out);
 
   // First the initial vector.
-  message_.append(iv_);
+  out->append(iv_);
 
   // Then we encrypt the SHA-256 hash of the payload
-  rijndael_.Encrypt(crypto::SHA256HashString(static_cast<std::string>(jfk1_)),
-                    &message_);
+  rijndael_.Encrypt(crypto::SHA256HashString(static_cast<std::string>(*jfk_)),
+                    out);
 
   // Encrypt length
-  int length = jfk1_.Length();
+  int length = jfk_->Length();
   char L[] = { static_cast<char>(length>>8),
                static_cast<char>(0xff & length) };
-  rijndael_.Encrypt(base::StringPiece(L, sizeof(L)), &message_);
+  rijndael_.Encrypt(base::StringPiece(L, sizeof(L)), out);
 
   // Encrypt payload
-  rijndael_.Encrypt(static_cast<std::string>(jfk1_), &message_);
+  rijndael_.Encrypt(static_cast<std::string>(*jfk_), out);
 
   // Add some extra random bytes.
+  auto pre_padding_length_(2 * kBlockSize + 2 + length);
+
+  // The payload cannot be larger than the MaxFreenetPacketSize, otherwise it
+  // won't fit.
+  DCHECK_GE(kMaxFreenetPacketSize, pre_padding_length_);
+
+  // Will be padding at max 100 bytes extra, it can be less if the package is
+  // big enough.
+  auto padding_length_(base::RandUint64() % std::min(
+    static_cast<int>(kMinPaddingLength),
+    kMaxFreenetPacketSize - pre_padding_length_));
+
   if (padding_length_) {
     std::string rnd_bytes;
     crypto::RandBytes(WriteInto(&rnd_bytes, padding_length_+1),
-      padding_length_);
-    message_.append(rnd_bytes);
+                      padding_length_);
+    out->append(rnd_bytes);
   }
-
-  return message_;
 }
 
 std::string Handshake::GetJfkAsString() const {
-  return static_cast<std::string>(jfk1_);
+  return static_cast<std::string>(*jfk_);
 }
 
 }  // namespace crypto

@@ -82,9 +82,13 @@ TEST(Handshake, BuildKey) {
 // computed hash
 TEST(Handshake, EncryptDecrypt) {
   for (int i = 0; i < 5; i++) {
-    Handshake hs(kId1, kId2);
+    Handshake hs(kId1, kId2, true);
     std::string jfkstr(hs.GetJfkAsString());
-    std::string message(hs);
+    std::string message;
+
+    // Build the response message, from an empty string, as we are the
+    // initiators.
+    hs.NextPhase("", &message);
 
     // First get the IV
     const auto kBlockSize(32);

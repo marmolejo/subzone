@@ -2,39 +2,37 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CRYPTO_JUST_FAST_KEYING_H_
-#define CRYPTO_JUST_FAST_KEYING_H_
+#ifndef CRYPTO_JFK0_H_
+#define CRYPTO_JFK0_H_
 
 #include <string>
+#include "crypto/jfk.h"
 #include "crypto/nonce.h"
 #include "crypto/p256_key_exchange.h"
 
 namespace crypto {
 
-// JustFast Keying is the payload of the handshake message. It contains the
-// public ECDSA key in X509 format, so the other peer can check it.
+// Jfk0 is the first message being sent to the other peer. It has the public
+// ECDSA key in X509 format, so the other peer can check it.
 
 // Just Fast Keying payload
-class JustFastKeying {
+class Jfk0 : public Jfk {
  public:
-  JustFastKeying();
+  Jfk0();
+  ~Jfk0() override;
+
+  // Here |in| is ignored, as is the first message, it has no incoming.
+  bool Init(base::StringPiece in) override;
 
   // Use a std::string conversion operator to get the binary representation of
   // this payload.
-  operator std::string () const;
-  int Length() const;
+  operator std::string () const override;
+  int Length() const override;
 
  private:
   enum {
-    // Nonce length, 256 bits
+    // Nonce length, 256 bits for the first message
     kNonceLength = 32,
-
-    // These values are harcoded as we only support for the moment these modes.
-    // Handshake version, currently 1
-    kVersion = 1,
-
-    // Negotiation type 9 (the only one supported)
-    kNegType = 9,
 
     // Phase 0, first message in the handshake
     kPhase   = 0,
@@ -45,9 +43,8 @@ class JustFastKeying {
   // P256 curve public key in X.509 format
   P256KeyExchange pub_key_;
 
-  char version_ { kVersion };
-  char neg_type_ { kNegType };
-  char phase_ { kPhase };
+  // This is constant in this phase
+  const char phase_ { kPhase };
 
   // The payload is built only once, on a read. This shouldn't change as its
   // values are built on the constructor.
@@ -56,4 +53,4 @@ class JustFastKeying {
 
 }  // namespace crypto
 
-#endif  // CRYPTO_JUST_FAST_KEYING_H_
+#endif  // CRYPTO_JFK0_H_
