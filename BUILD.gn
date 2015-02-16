@@ -14,6 +14,7 @@ executable("crypto_test") {
     "crypto/handshake.cc",
     "crypto/handshake_unittest.cc",
     "crypto/jfk0.cc",
+    "crypto/jfk1.cc",
     "crypto/jfk_test.cc",
     "crypto/nonce.cc",
     "crypto/p256_key_exchange.cc",

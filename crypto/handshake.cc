@@ -8,6 +8,7 @@
 #include "base/rand_util.h"
 #include "base/strings/string_util.h"
 #include "crypto/jfk0.h"
+#include "crypto/jfk1.h"
 #include "crypto/random.h"
 #include "crypto/sha2.h"
 
@@ -15,7 +16,9 @@ namespace crypto {
 
 Handshake::Handshake(base::StringPiece i0, base::StringPiece i1,
                      bool initiator)
-    : jfk_(std::make_unique<Jfk0>()),  // Currently we build only the first
+    : jfk_(initiator ?
+           static_cast<std::unique_ptr<Jfk>>(std::make_unique<Jfk0>())
+         : static_cast<std::unique_ptr<Jfk>>(std::make_unique<Jfk1>())),
       phase_(initiator ? 0 : 1),
       iv_(kBlockSize),
       rijndael_(BuildKey(i0, i1), static_cast<std::string>(iv_)) {
