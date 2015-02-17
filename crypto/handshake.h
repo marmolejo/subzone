@@ -7,6 +7,7 @@
 
 #include <memory>
 #include <string>
+#include "base/gtest_prod_util.h"
 #include "base/strings/string_piece.h"
 #include "crypto/jfk.h"
 #include "crypto/rijndael.h"
@@ -33,10 +34,9 @@ class Handshake {
   // with the current phase, return false.
   bool NextPhase(base::StringPiece in, std::string *out);
 
-  // JFK accessor
-  std::string GetJfkAsString() const;
-
  private:
+  FRIEND_TEST_ALL_PREFIXES(Handshake, EncryptDecrypt);
+
   // Implicit conversion to std::string will yield the string of bytes of the
   // full packet, including the extra random padding.
   void BuildAuthPacket(std::string *out);

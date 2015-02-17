@@ -10,7 +10,6 @@
 #include "crypto/sha2.h"
 
 namespace crypto {
-namespace test {
 
 // 3 random node identities.
 const std::string kId1 = "gAXIdY1ZIY5imCwcISPDmkUCfEf0iT463+k2PkAh8Cw";
@@ -83,7 +82,7 @@ TEST(Handshake, BuildKey) {
 TEST(Handshake, EncryptDecrypt) {
   for (int i = 0; i < 5; i++) {
     Handshake hs(kId1, kId2, true);
-    std::string jfkstr(hs.GetJfkAsString());
+    std::string jfkstr(static_cast<std::string>(*hs.jfk_));
     std::string message;
 
     // Build the response message, from an empty string, as we are the
@@ -123,5 +122,4 @@ TEST(Handshake, EncryptDecrypt) {
   }
 }
 
-}  // namespace test
 }  // namespace crypto

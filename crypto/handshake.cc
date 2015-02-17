@@ -108,8 +108,4 @@ void Handshake::BuildAuthPacket(std::string *out) {
   }
 }
 
-std::string Handshake::GetJfkAsString() const {
-  return static_cast<std::string>(*jfk_);
-}
-
 }  // namespace crypto
