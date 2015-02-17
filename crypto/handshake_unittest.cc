@@ -21,7 +21,7 @@ const std::string kId3 = "HupvjSHPGi8aB1bXeyU0X79V1jLp/nIoc4ERtREO6SE";
 // incoming key for communicating with the other peer. This test checks that
 // keys are created correctly and match these ones created by the Freenet
 // reference daemon.
-TEST(Handshake, BuildKey) {
+TEST(Handshake, BuildKeys) {
   const std::string kKey12 = {
     107, 28, 18, -6, 115, 83, -28, -117,
     -46, -24, -109, -51, -28, -31, -30, -39,
@@ -68,12 +68,18 @@ TEST(Handshake, BuildKey) {
   // an outgoing and incoming key. They are compared to the results obtained
   // from the Freenet reference daemon, as they must see each other and be able
   // to communicate.
-  EXPECT_EQ(Handshake::BuildKey(kId1, kId2).compare(kKey12), 0);
-  EXPECT_EQ(Handshake::BuildKey(kId2, kId1).compare(kKey21), 0);
-  EXPECT_EQ(Handshake::BuildKey(kId1, kId3).compare(kKey13), 0);
-  EXPECT_EQ(Handshake::BuildKey(kId3, kId1).compare(kKey31), 0);
-  EXPECT_EQ(Handshake::BuildKey(kId2, kId3).compare(kKey23), 0);
-  EXPECT_EQ(Handshake::BuildKey(kId3, kId2).compare(kKey32), 0);
+  Handshake hs12(kId1, kId2, true);
+  Handshake hs13(kId1, kId3, true);
+  Handshake hs23(kId2, kId3, true);
+
+  // Incoming key for peer 1 from 2 must match the outgoing key from peer 2 to
+  // 1.
+  EXPECT_EQ(hs12.out_key_.compare(kKey12), 0);
+  EXPECT_EQ(hs12.in_key_.compare(kKey21), 0);
+  EXPECT_EQ(hs13.out_key_.compare(kKey13), 0);
+  EXPECT_EQ(hs13.in_key_.compare(kKey31), 0);
+  EXPECT_EQ(hs23.out_key_.compare(kKey23), 0);
+  EXPECT_EQ(hs23.in_key_.compare(kKey32), 0);
 }
 
 // Decrypt a message and obtain the payload from a generated handshake,
@@ -83,42 +89,16 @@ TEST(Handshake, EncryptDecrypt) {
   for (int i = 0; i < 5; i++) {
     Handshake hs(kId1, kId2, true);
     std::string jfkstr(static_cast<std::string>(*hs.jfk_));
+
+    // First build the auth packet (encrypt, hash, length, IV, padding).
     std::string message;
+    hs.BuildAuthPacket(&message);
 
-    // Build the response message, from an empty string, as we are the
-    // initiators.
-    hs.NextPhase("", &message);
-
-    // First get the IV
-    const auto kBlockSize(32);
-    std::string iv(message, 0, kBlockSize);
-    std::string message_enc(message, kBlockSize);
-
-    // Decrypt message
-    Rijndael rijndael(Handshake::BuildKey(kId1, kId2), iv);
-
-    std::string message_dec;
-    rijndael.Decrypt(message_enc, &message_dec);
-
-    // Get hash
-    int pos(0);
-    std::string hash(message_dec, pos, 32);
-
-    // Get length
-    pos+=32;
-    std::string length_str(message_dec, pos, 2);
-
-    // Process length
-    int length = { static_cast<uint8_t>(length_str[0])*256 +
-                   static_cast<uint8_t>(length_str[1]) };
-
-    // Get payload
-    pos+=2;
-    std::string payload(message_dec, pos, length);
-    EXPECT_EQ(jfkstr.compare(payload), 0);
-
-    // Hash must match with message hash
-    EXPECT_EQ(hash.compare(crypto::SHA256HashString(payload)), 0);
+    // Now process and decrypt generated message. It shouldn't give any
+    // processing errors and payloads must match.
+    std::string decrypted;
+    EXPECT_TRUE(hs.TryProcessAuth(message, &decrypted));
+    EXPECT_EQ(jfkstr.compare(decrypted), 0);
   }
 }
 

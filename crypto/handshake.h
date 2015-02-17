@@ -24,25 +24,34 @@ class Handshake {
   // the handshake. |initiator| holds this value.
   Handshake(base::StringPiece i0, base::StringPiece i1, bool initiator);
 
-  // BuildKey gets the simmetric Rijndael key that is derived from the
-  // identities of the two peers.
-  static std::string BuildKey(base::StringPiece i0, base::StringPiece i1);
+  // BuildKeys gets the simmetric Rijndael key that is derived from the
+  // identities of the two peers. There are two simmetric keys, outgoing key and
+  // incoming key.
+  void BuildKeys(base::StringPiece i0, base::StringPiece i1);
 
   // NextPhase checks in which phase in the negotiation we are, taking an
   // incoming message |in|, checking the correct length and hash, then building
   // the next message in |out|. If incoming message has some error, according
-  // with the current phase, return false.
+  // to the current phase, return false.
   bool NextPhase(base::StringPiece in, std::string *out);
 
  private:
+  FRIEND_TEST_ALL_PREFIXES(Handshake, BuildKeys);
   FRIEND_TEST_ALL_PREFIXES(Handshake, EncryptDecrypt);
 
-  // Implicit conversion to std::string will yield the string of bytes of the
-  // full packet, including the extra random padding.
+  // BuildAuthPacket encrypts, hashes and builds the final auth packet that will
+  // be sent through the net. It gets the jfk_ member as string which is the
+  // payload and write the final packet to |out|.
   void BuildAuthPacket(std::string *out);
 
+  // TryProcessAuth does the inverse as BuildAuthPacket. In this case, it gets
+  // an encrypted packet in |in| and tries to decrypt it. It may happen that
+  // this is not an auth packet or it's malformed, in this case, the return
+  // value is false. The output decrypted packet is written to |out|.
+  bool TryProcessAuth(base::StringPiece in, std::string *out);
+
   enum {
-    kBlockSize = 32,  // 256-bit blocs, for the IV
+    kBlockSize = 32,  // 256-bit blocks, for the IV
 
     // These two values are taken from the reference daemon
     kMaxFreenetPacketSize = 1232,
@@ -55,12 +64,9 @@ class Handshake {
   // Depending if we are initiators or not, it is phase 0 or 1
   unsigned phase_;
 
-  Nonce iv_;  // A random nonce
-  int pre_padding_length_;
-  int padding_length_;
-
-  // Rijndael 256 CFB encryptor
-  Rijndael rijndael_;
+  // Incoming and outgoing cipher keys
+  std::string in_key_;
+  std::string out_key_;
 };
 
 }  // namespace crypto
