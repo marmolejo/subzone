@@ -35,11 +35,6 @@ class Jfk {
     // Negotiation type 9 (the only one supported)
     kNegType = 9,
   };
-
-  // These values, that are sent in any outgoing messages are constant, as we
-  // don't support other versions or older negotiation types (pre-2013).
-  const char version_ { kVersion };
-  const char neg_type_ { kNegType };
 };
 
 }  // namespace crypto

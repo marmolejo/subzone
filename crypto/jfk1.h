@@ -6,6 +6,7 @@
 #define CRYPTO_JFK1_H_
 
 #include <string>
+#include "base/gtest_prod_util.h"
 #include "crypto/jfk.h"
 #include "crypto/nonce.h"
 #include "crypto/p256_key_exchange.h"
@@ -29,6 +30,8 @@ class Jfk1 : public Jfk {
   int Length() const override;
 
  private:
+  FRIEND_TEST_ALL_PREFIXES(Jfk1, Init);
+
   enum {
     // Nonce length, 128 bits for the reply message
     kNonceLength = 16,
@@ -37,13 +40,17 @@ class Jfk1 : public Jfk {
     kPhase   = 1,
   };
 
+  // Auxiliary function to verify the three bytes present in the header.
+  bool VerifyHeader(base::StringPiece in);
+
   Nonce nonce_;
+
+  // Get the peer nonce and peer public key from the incoming packet
+  std::string peer_nonce_;
+  std::string peer_public_key_;
 
   // P256 curve public key in X.509 format
   P256KeyExchange pub_key_;
-
-  // This is constant in this phase
-  char phase_ { kPhase };
 
   // The payload is built only once, on a read. This shouldn't change as its
   // values are built on the constructor.

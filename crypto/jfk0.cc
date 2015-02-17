@@ -24,7 +24,7 @@ bool Jfk0::Init(base::StringPiece in) {
 Jfk0::operator std::string () const {
   if (!payload_.empty()) return payload_;
 
-  const char header[] = { version_, neg_type_, phase_ };
+  const char header[] = { kVersion, kNegType, kPhase };
 
   // First the message header.
   payload_.append(header, 3);

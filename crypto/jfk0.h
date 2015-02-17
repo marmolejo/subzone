@@ -43,9 +43,6 @@ class Jfk0 : public Jfk {
   // P256 curve public key in X.509 format
   P256KeyExchange pub_key_;
 
-  // This is constant in this phase
-  const char phase_ { kPhase };
-
   // The payload is built only once, on a read. This shouldn't change as its
   // values are built on the constructor.
   mutable std::string payload_;
