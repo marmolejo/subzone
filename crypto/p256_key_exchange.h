@@ -27,6 +27,9 @@ class P256KeyExchange {
   // Obtain the public key in X.509 network format
   base::StringPiece GetX509Public() const;
 
+  // Gets the public key X509 ECDSA signature with SHA-256 digest
+  base::StringPiece GetSignature() const;
+
   // GetPublicValueFromX509 parses a X.509 certificate containing the EC public
   // key in |peer_public_x509| and returns the uncompressed public key value
   static bool GetPublicValueFromX509(const base::StringPiece& peer_public_x509,
@@ -44,6 +47,8 @@ class P256KeyExchange {
     kUncompressedECPointForm = 0x04,
     // This includes the algorithm id and parameters
     kP256PublicKeyX509Bytes = 91,
+    // Maximum size of the DER signature
+    kSignatureBytes = 72,
   };
 
   // The public key stored as a X509 certificate
@@ -55,6 +60,10 @@ class P256KeyExchange {
 
   // The public key stored as an uncompressed P-256 point.
   uint8 public_key_[kUncompressedP256PointBytes];
+
+  // Public key signature in DER format.
+  mutable uint8 signature_[kSignatureBytes];
+  mutable base::StringPiece signature_str_;
 
   DISALLOW_COPY_AND_ASSIGN(P256KeyExchange);
 };

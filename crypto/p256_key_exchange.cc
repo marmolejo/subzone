@@ -7,6 +7,7 @@
 #include <openssl/x509.h>
 #include <string>
 #include "base/logging.h"
+#include "crypto/sha2.h"
 
 using base::StringPiece;
 using std::string;
@@ -83,6 +84,25 @@ base::StringPiece P256KeyExchange::GetX509Public() const {
       kP256PublicKeyX509Bytes);
 
   return public_key_x509_str_;
+}
+
+base::StringPiece P256KeyExchange::GetSignature() const {
+  if (!signature_str_.empty()) return signature_str_;
+
+  // Compute sha256 digest from the public x509 value
+  std::string hash(crypto::SHA256HashString(GetX509Public()));
+
+  // Get the heap-allocated signature object
+  crypto::ScopedECDSA_SIG sig {
+    ECDSA_do_sign(reinterpret_cast<const uint8_t *>(&hash[0]),
+                  SHA256_DIGEST_LENGTH, private_key_.get()) };
+
+  // Convert it to DER format for export
+  uint8 *signature { signature_ };
+  i2d_ECDSA_SIG(sig.get(), &signature);
+  signature_str_.set(reinterpret_cast<char *>(signature_), kSignatureBytes);
+
+  return signature_str_;
 }
 
 // static
