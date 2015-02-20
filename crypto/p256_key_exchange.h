@@ -35,6 +35,14 @@ class P256KeyExchange {
   static bool GetPublicValueFromX509(const base::StringPiece& peer_public_x509,
                                      std::string *out_public_value);
 
+  static bool VerifySignature(const base::StringPiece& peer_public_x509,
+                              const base::StringPiece& signature);
+
+  enum {
+    // This includes the algorithm id and parameters
+    kP256PublicKeyX509Bytes = 91,
+  };
+
  private:
   enum {
     // A P-256 field element consists of 32 bytes.
@@ -45,8 +53,6 @@ class P256KeyExchange {
     kUncompressedP256PointBytes = 1 + 2 * kP256FieldBytes,
     // The first byte in an uncompressed P-256 point.
     kUncompressedECPointForm = 0x04,
-    // This includes the algorithm id and parameters
-    kP256PublicKeyX509Bytes = 91,
     // Maximum size of the DER signature
     kSignatureBytes = 72,
   };

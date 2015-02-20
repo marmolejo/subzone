@@ -13,6 +13,31 @@ using base::StringPiece;
 using std::string;
 
 namespace crypto {
+namespace {
+
+bool ProcessPublicKey(
+  const base::StringPiece& public_key,
+  crypto::ScopedEVP_PKEY *pkey) {
+  DCHECK(pkey);
+
+  if (public_key.size() != P256KeyExchange::kP256PublicKeyX509Bytes) {
+    DVLOG(1) << "X.509 public key in wrong size.";
+    return false;
+  }
+
+  const unsigned char *public_key_data {
+    reinterpret_cast<const unsigned char *>(public_key.data()) };
+
+  // d2i_PUBKEY converts it back from network format
+  pkey->reset(d2i_PUBKEY(nullptr, &public_key_data, public_key.size()));
+  if (pkey->get() == nullptr) {
+    DVLOG(1) << "Unable to convert public key.";
+    return false;
+  }
+  return true;
+}
+
+}  // namespace
 
 P256KeyExchange::P256KeyExchange()
     : private_key_(EC_KEY_new_by_curve_name(NID_X9_62_prime256v1)) {
@@ -106,23 +131,46 @@ base::StringPiece P256KeyExchange::GetSignature() const {
 }
 
 // static
+bool P256KeyExchange::VerifySignature(
+  const base::StringPiece& peer_public_x509,
+  const base::StringPiece& signature) {
+  // Compute sha256 digest from the public x509 value
+  std::string hash(crypto::SHA256HashString(peer_public_x509));
+
+  const unsigned char *signature_data {
+    reinterpret_cast<const unsigned char *>(signature.data()) };
+  crypto::ScopedECDSA_SIG sig {
+    d2i_ECDSA_SIG(nullptr, &signature_data, signature.size()) };
+  if (sig.get() == nullptr) {
+    DVLOG(1) << "Unable to convert signature.";
+    return false;
+  }
+
+  crypto::ScopedEVP_PKEY pkey;
+  if (!ProcessPublicKey(peer_public_x509, &pkey)) {
+    DVLOG(1) << "Can't process public key.";
+    return false;
+  }
+
+  EC_KEY *ec_key = EVP_PKEY_get1_EC_KEY(pkey.get());
+
+  if (ECDSA_do_verify(reinterpret_cast<const uint8_t *>(&hash[0]),
+                      SHA256_DIGEST_LENGTH, sig.get(), ec_key) != 1) {
+    DVLOG(1) << "Can't verify public key.";
+    return false;
+  }
+
+  return true;
+}
+
+// static
 bool P256KeyExchange::GetPublicValueFromX509(
     const base::StringPiece& peer_public_x509,
     std::string *out_public_value) {
 
-  if (peer_public_x509.size() != kP256PublicKeyX509Bytes) {
-    DVLOG(1) << "X.509 public key in wrong size.";
-    return false;
-  }
-
-  const unsigned char *public_key_data {
-    reinterpret_cast<const unsigned char *>(peer_public_x509.data()) };
-
-  // d2i_PUBKEY convert it back from network format
-  crypto::ScopedEVP_PKEY pkey {
-    d2i_PUBKEY(nullptr, &public_key_data, peer_public_x509.size()) };
-  if (pkey.get() == nullptr) {
-    DVLOG(1) << "Unable to convert public key.";
+  crypto::ScopedEVP_PKEY pkey;
+  if (!ProcessPublicKey(peer_public_x509, &pkey)) {
+    DVLOG(1) << "Can't process public key.";
     return false;
   }
 
