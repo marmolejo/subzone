@@ -7,8 +7,6 @@
 #include "base/logging.h"
 #include "gtest/gtest.h"
 
-using std::string;
-
 namespace crypto {
 namespace test {
 
@@ -29,7 +27,7 @@ TEST(P256KeyExchange, SharedKeyX509) {
     ASSERT_NE(alice_public_x509, bob_public_x509);
 
     // Convert X.509 format to public key value
-    string alice_public, bob_public;
+    std::string alice_public, bob_public;
     ASSERT_TRUE(P256KeyExchange::GetPublicValueFromX509(alice_public_x509,
         &alice_public));
     ASSERT_TRUE(P256KeyExchange::GetPublicValueFromX509(bob_public_x509,
@@ -38,6 +36,20 @@ TEST(P256KeyExchange, SharedKeyX509) {
     // These public keys must match
     ASSERT_EQ(alice_public, alice->public_value());
     ASSERT_EQ(bob_public, bob->public_value());
+  }
+}
+
+TEST(P256KeyExchange, Signature) {
+  for (int i = 0; i < 5; i++) {
+    P256KeyExchange alice;
+    const base::StringPiece alice_sig(alice.GetSignature());
+    ASSERT_FALSE(alice_sig.empty());
+
+    const base::StringPiece public_x509(alice.GetX509Public());
+    ASSERT_FALSE(public_x509.empty());
+
+    // Verify
+    ASSERT_TRUE(P256KeyExchange::VerifySignature(public_x509, alice_sig));
   }
 }
 
