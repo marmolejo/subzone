@@ -27,7 +27,7 @@ class P256KeyExchange {
   // Obtain the public key in X.509 network format
   base::StringPiece GetX509Public() const;
 
-  // Gets the public key X509 ECDSA signature with SHA-256 digest
+  // Gets the public key X509 ECDSA signature using a SHA-256 digest.
   base::StringPiece GetSignature() const;
 
   // GetPublicValueFromX509 parses a X.509 certificate containing the EC public
@@ -35,6 +35,10 @@ class P256KeyExchange {
   static bool GetPublicValueFromX509(const base::StringPiece& peer_public_x509,
                                      std::string *out_public_value);
 
+  // VerifySignature takes a public EC key and verifies that the |signature|
+  // matches with the public key digest SHA-256 signature in |peer_public_x509|,
+  // the same public key is used for verification. It returns true if the
+  // signature matches with the public key, otherwise returns false.
   static bool VerifySignature(const base::StringPiece& peer_public_x509,
                               const base::StringPiece& signature);
 

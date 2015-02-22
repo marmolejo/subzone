@@ -137,6 +137,7 @@ bool P256KeyExchange::VerifySignature(
   // Compute sha256 digest from the public x509 value
   std::string hash(crypto::SHA256HashString(peer_public_x509));
 
+  // Convert signature in DER format to internal SSL for later processing.
   const unsigned char *signature_data {
     reinterpret_cast<const unsigned char *>(signature.data()) };
   crypto::ScopedECDSA_SIG sig {
@@ -146,14 +147,20 @@ bool P256KeyExchange::VerifySignature(
     return false;
   }
 
+  // Process public key takes the public key passed as parameter in DER format
+  // and transforms it in an internal format, necessary for later processing.
   crypto::ScopedEVP_PKEY pkey;
   if (!ProcessPublicKey(peer_public_x509, &pkey)) {
     DVLOG(1) << "Can't process public key.";
     return false;
   }
 
+  // From the EVP_PKEY structure, take the EC_KEY field, which is the one we are
+  // interested in.
   EC_KEY *ec_key = EVP_PKEY_get1_EC_KEY(pkey.get());
 
+  // Call verificaion on the signature converted to internal format. If the
+  // signature matches, it will return true.
   if (ECDSA_do_verify(reinterpret_cast<const uint8_t *>(&hash[0]),
                       SHA256_DIGEST_LENGTH, sig.get(), ec_key) != 1) {
     DVLOG(1) << "Can't verify public key.";

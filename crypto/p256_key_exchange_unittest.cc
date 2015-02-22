@@ -39,16 +39,21 @@ TEST(P256KeyExchange, SharedKeyX509) {
   }
 }
 
+// The signature test generates a key exchange (public/private key pair) and
+// takes the public key value and signs it. Finally it verifies that the
+// signature matches with the public key signature. We repeat this test 5 times.
 TEST(P256KeyExchange, Signature) {
   for (int i = 0; i < 5; i++) {
     P256KeyExchange alice;
     const base::StringPiece alice_sig(alice.GetSignature());
     ASSERT_FALSE(alice_sig.empty());
 
+    // Take the public key in DER format. This is the string that is going to be
+    // passed through the SHA256 and then signed.
     const base::StringPiece public_x509(alice.GetX509Public());
     ASSERT_FALSE(public_x509.empty());
 
-    // Verify
+    // Verify the signature against it's public key.
     ASSERT_TRUE(P256KeyExchange::VerifySignature(public_x509, alice_sig));
   }
 }
