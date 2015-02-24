@@ -21,7 +21,7 @@ bool ProcessPublicKey(
   DCHECK(pkey);
 
   if (public_key.size() != P256KeyExchange::kP256PublicKeyX509Bytes) {
-    DVLOG(1) << "X.509 public key in wrong size.";
+    DVLOG(1) << "Wrong size for X.509 public key.";
     return false;
   }
 
@@ -39,8 +39,14 @@ bool ProcessPublicKey(
 
 }  // namespace
 
-P256KeyExchange::P256KeyExchange()
-    : private_key_(EC_KEY_new_by_curve_name(NID_X9_62_prime256v1)) {
+P256KeyExchange::P256KeyExchange() {
+}
+
+P256KeyExchange::~P256KeyExchange() {
+}
+
+bool P256KeyExchange::Init() {
+  private_key_.reset(EC_KEY_new_by_curve_name(NID_X9_62_prime256v1));
   DCHECK(private_key_.get());
 
   // Generate a new random private key.
@@ -54,9 +60,46 @@ P256KeyExchange::P256KeyExchange()
                        POINT_CONVERSION_UNCOMPRESSED, public_key_,
                        sizeof(public_key_), nullptr));
   DCHECK_EQ(size_public, sizeof(public_key_));
+
+  return true;
 }
 
-P256KeyExchange::~P256KeyExchange() {
+bool P256KeyExchange::Init(const base::StringPiece& private_key) {
+  const uint8_t *private_key_data {
+    reinterpret_cast<const uint8_t *>(private_key.data()) };
+
+  // Parse DER formatted private key. This will create an EVP_KEY structure
+  // in the heap, therefore we are responsible for freeing the memory after use.
+  // Ideal for a scoped_ptr.
+  crypto::ScopedEVP_PKEY evp_key {
+    d2i_AutoPrivateKey(nullptr, &private_key_data, private_key.size()) };
+
+  if (evp_key.get() == nullptr) {
+    DVLOG(1) << "Error parsing private key in DER format.";
+    return false;
+  }
+
+  // Get the EC key from the EVP
+  EC_KEY *eckey = EVP_PKEY_get1_EC_KEY(evp_key.get());
+  if (eckey == nullptr) {
+    DVLOG(1) << "Private key is not an EC type key.";
+    return false;
+  }
+
+  // As the EVP object will be deleted after returning from this function, we
+  // must copy the EC field to this object.
+  private_key_.reset(EC_KEY_dup(eckey));
+  DCHECK(private_key_.get());
+
+  // Get the public key from the private one.
+  auto size_public(
+    EC_POINT_point2oct(EC_KEY_get0_group(private_key_.get()),
+                       EC_KEY_get0_public_key(private_key_.get()),
+                       POINT_CONVERSION_UNCOMPRESSED, public_key_,
+                       sizeof(public_key_), nullptr));
+  DCHECK_EQ(size_public, sizeof(public_key_));
+
+  return true;
 }
 
 bool P256KeyExchange::CalculateSharedKey(const StringPiece& peer_public_value,

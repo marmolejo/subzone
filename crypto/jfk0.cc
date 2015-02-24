@@ -18,7 +18,7 @@ Jfk0::~Jfk0() {
 
 bool Jfk0::Init(base::StringPiece in) {
   // As the first message to be sent, ignore the parameter |in|.
-  return true;
+  return pub_key_.Init();
 }
 
 Jfk0::operator std::string () const {

@@ -66,7 +66,7 @@ bool Jfk1::Init(base::StringPiece in) {
   in.substr(kHeaderSize + kNonceLengthInitiator, kPublicKeySize)
     .CopyToString(&peer_public_key_);
 
-  return true;
+  return pub_key_.Init();
 }
 
 Jfk1::operator std::string () const {

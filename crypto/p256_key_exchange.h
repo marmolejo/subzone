@@ -17,6 +17,13 @@ class P256KeyExchange {
   P256KeyExchange();
   ~P256KeyExchange();
 
+  // Init the key exchange. This must be called after the  constructor to build
+  // the private key. In the first case it builds the private key from random
+  // data. The second creates the exchange from the |private_key| specified.
+  // This private key must be a valid EC key in DER network format.
+  bool Init();
+  bool Init(const base::StringPiece& private_key);
+
   // CalculateSharedKey builds the shared key between two nodes, given a public
   // key value in |peer_public_value|. |shared_key| is an output parameter that
   // will get the ECDH shared key between two pairs.
