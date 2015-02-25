@@ -11,6 +11,7 @@ group("root") {
 executable("crypto_test") {
   sources = [
     "debug/hexdump.cc",
+    "chromium/crypto/hmac_unittest.cc",
     "crypto/handshake.cc",
     "crypto/handshake_unittest.cc",
     "crypto/jfk0.cc",
