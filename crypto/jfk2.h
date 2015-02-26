@@ -2,26 +2,26 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CRYPTO_JFK0_H_
-#define CRYPTO_JFK0_H_
+#ifndef CRYPTO_JFK2_H_
+#define CRYPTO_JFK2_H_
 
 #include <string>
+#include "base/gtest_prod_util.h"
 #include "crypto/jfk.h"
 #include "crypto/nonce.h"
 #include "crypto/p256_key_exchange.h"
 
 namespace crypto {
 
-// Jfk0 is the first message being sent to the other peer. It has the public
-// ECDSA key in X509 format, so the other peer can check it.
+// Jfk2 is the reply message being sent to the other peer. It takes the first
+// message received and checks that is well formed. This is done in Init. Once
+// checked, it builds the reply message to send.
 
-// Just Fast Keying payload
-class Jfk0 : public Jfk {
+class Jfk2 : public Jfk {
  public:
-  Jfk0();
-  ~Jfk0() override;
+  Jfk2();
+  ~Jfk2() override;
 
-  // Here |in| is ignored, as is the first message, it has no incoming.
   bool Init(base::StringPiece in) override;
 
   // Use a std::string conversion operator to get the binary representation of
@@ -30,15 +30,24 @@ class Jfk0 : public Jfk {
   int Length() const override;
 
  private:
-  enum {
-    // Nonce length, 256 bits for the first message
-    kNonceLength = 32,
+  FRIEND_TEST_ALL_PREFIXES(Jfk2, Init);
 
-    // Phase 0, first message in the handshake
-    kPhase   = 0,
+  enum {
+    // Nonce length, 128 bits for the reply message
+    kNonceLength = 16,
+
+    // Phase 1, reply message to the first
+    kPhase   = 1,
   };
 
+  // Auxiliary function to verify the three bytes present in the header.
+  bool VerifyHeader(base::StringPiece in);
+
   Nonce nonce_;
+
+  // Get the peer nonce and peer public key from the incoming packet
+  std::string peer_nonce_;
+  std::string peer_public_key_;
 
   // P256 curve public key in X.509 format
   P256KeyExchange pub_key_;
@@ -50,4 +59,4 @@ class Jfk0 : public Jfk {
 
 }  // namespace crypto
 
-#endif  // CRYPTO_JFK0_H_
+#endif  // CRYPTO_JFK2_H_

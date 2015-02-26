@@ -7,8 +7,8 @@
 #include "base/base64.h"
 #include "base/rand_util.h"
 #include "base/strings/string_util.h"
-#include "crypto/jfk0.h"
 #include "crypto/jfk1.h"
+#include "crypto/jfk2.h"
 #include "crypto/nonce.h"
 #include "crypto/random.h"
 #include "crypto/sha2.h"
@@ -18,8 +18,8 @@ namespace crypto {
 Handshake::Handshake(base::StringPiece i0, base::StringPiece i1,
                      bool initiator)
     : jfk_(initiator ?
-           static_cast<std::unique_ptr<Jfk>>(std::make_unique<Jfk0>())
-         : static_cast<std::unique_ptr<Jfk>>(std::make_unique<Jfk1>())),
+           static_cast<std::unique_ptr<Jfk>>(std::make_unique<Jfk1>())
+         : static_cast<std::unique_ptr<Jfk>>(std::make_unique<Jfk2>())),
       phase_(initiator ? 0 : 1) {
   DCHECK_EQ(i0.length(), 43);  // base64 encoding of an Identity
   DCHECK_EQ(i0.length(), 43);

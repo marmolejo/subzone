@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "crypto/jfk0.h"
 #include "crypto/jfk1.h"
+#include "crypto/jfk2.h"
 
 #include "base/logging.h"
 #include "gtest/gtest.h"
@@ -16,8 +16,8 @@ const int kPublicKeySize = 91;
 
 // A simple test that checks the correct size of the payload, just for the
 // first message.
-TEST(Jfk0, Size) {
-  Jfk0 jfk;
+TEST(Jfk1, Size) {
+  Jfk1 jfk;
 
   std::string jfk_str(jfk);
 
@@ -30,7 +30,7 @@ TEST(Jfk0, Size) {
 }
 
 
-TEST(Jfk1, Init) {
+TEST(Jfk2, Init) {
   // This is an example phase1 payload taken from Freenet reference daemon. We
   // only check here that Init verifies the header, size and copies correct
   // bytes for peer's nonce and public key.
@@ -45,7 +45,7 @@ TEST(Jfk1, Init) {
     -9, -4, 62, 40, 46, 107, 21, -89, -48, 15, 105, 27, 86, -20,
   };
 
-  Jfk1 jfk;
+  Jfk2 jfk;
   EXPECT_TRUE(jfk.Init(kPayload));
 
   // Take the above substrings directly to match nonce and public key stored by
