@@ -31,8 +31,8 @@ class Jfk1 : public Jfk {
 
  private:
   enum {
-    // Nonce length, 256 bits for the first message
-    kNonceLength = 32,
+    // Nonce length, 128 bits for the first message, we compute its hash
+    kNonceLength = 16,
 
     // Phase 0, first message in the handshake
     kPhase   = 0,

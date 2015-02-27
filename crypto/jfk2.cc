@@ -6,12 +6,13 @@
 
 #include <string>
 #include "base/logging.h"
+#include "crypto/hmac.h"
 #include "crypto/sha2.h"
 
 namespace crypto {
 
 Jfk2::Jfk2()
-  : nonce_(kNonceLength) {
+  : nonce_(kNonceLength), transient_key_(kKeyLength) {
 }
 
 Jfk2::~Jfk2() {
@@ -60,9 +61,9 @@ bool Jfk2::Init(base::StringPiece in) {
     return false;
   }
 
-  // As the incoming message appears to be OK, just copy the 32 byte nonce for
-  // sending it later and copy peer's public key.
-  in.substr(kHeaderSize, kNonceLengthInitiator).CopyToString(&peer_nonce_);
+  // As the incoming message appears to be OK, just copy the 32 byte SHA256 of
+  // peer's nonce for sending it later and copy peer's public key.
+  in.substr(kHeaderSize, kNonceLengthInitiator).CopyToString(&peer_hash_nonce_);
   in.substr(kHeaderSize + kNonceLengthInitiator, kPublicKeySize)
     .CopyToString(&peer_public_key_);
 
@@ -70,7 +71,46 @@ bool Jfk2::Init(base::StringPiece in) {
 }
 
 Jfk2::operator std::string () const {
-  return std::string();
+  if (!payload_.empty()) return payload_;
+
+  const char header[] = { kVersion, kNegType, kPhase };
+
+  // First the message header.
+  payload_.append(header, 3);
+
+  // Hash of peer's nonce, then our nonce
+  payload_.append(peer_hash_nonce_);
+  payload_.append(nonce_);
+
+  // Our public key and the public key's signature in DER network format
+  pub_key_.GetX509Public().AppendToString(&payload_);
+  pub_key_.GetSignature().AppendToString(&payload_);
+
+  // Pad signature with zeros till kSignatureSize (it must have a fixed size)
+  payload_.append(kSignatureSize - pub_key_.GetSignature().length(), '\0');
+
+  // 32 byte HMAC authenticator, based on a transient key
+  HMAC hmac(crypto::HMAC::SHA256);
+  hmac.Init(reinterpret_cast<const unsigned char*>(
+    & (static_cast<std::string>(transient_key_)[0])), kKeyLength);
+
+  // Data passed to HMAC is the concat of our public key, then peer's public key
+  // Our nonce, their nonce hash and our public IP address, which for testing
+  // purposes we will leave it as 127.0.0.1 for the moment.
+  std::string hmac_data(pub_key_.GetX509Public().as_string());
+  hmac_data.append(peer_public_key_);
+  hmac_data.append(nonce_);
+  hmac_data.append(peer_hash_nonce_);
+
+  // FIXME: use hardcoded 127.0.0.1 as temporary address value
+  hmac_data.append("\x7f\0\0\x1", 4);
+
+  // Sign the authentication block and append it to the payload.
+  uint8_t hmac_sign[kKeyLength];
+  hmac.Sign(hmac_data, hmac_sign, kKeyLength);
+  payload_.append(reinterpret_cast<char*>(hmac_sign), kKeyLength);
+
+  return payload_;
 }
 
 // To get the length, we must have built the payload string.

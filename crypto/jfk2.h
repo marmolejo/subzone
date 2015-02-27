@@ -38,15 +38,22 @@ class Jfk2 : public Jfk {
 
     // Phase 1, reply message to the first
     kPhase   = 1,
+
+    // Transient key length
+    kKeyLength = 32,
+
+    // Signature length
+    kSignatureSize = 72,
   };
 
   // Auxiliary function to verify the three bytes present in the header.
   bool VerifyHeader(base::StringPiece in);
 
   Nonce nonce_;
+  Nonce transient_key_;
 
   // Get the peer nonce and peer public key from the incoming packet
-  std::string peer_nonce_;
+  std::string peer_hash_nonce_;
   std::string peer_public_key_;
 
   // P256 curve public key in X.509 format

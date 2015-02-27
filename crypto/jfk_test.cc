@@ -13,6 +13,7 @@ namespace crypto {
 const int kHeaderSize = 3;
 const int kNonceLengthInitiator = 32;
 const int kPublicKeySize = 91;
+const int kSHA256DigestSize = 32;
 
 // A simple test that checks the correct size of the payload, just for the
 // first message.
@@ -46,14 +47,21 @@ TEST(Jfk2, Init) {
   };
 
   Jfk2 jfk;
-  EXPECT_TRUE(jfk.Init(kPayload));
+  ASSERT_TRUE(jfk.Init(kPayload));
 
   // Take the above substrings directly to match nonce and public key stored by
   // jfk1.
-  EXPECT_EQ(jfk.peer_nonce_.compare(
+  EXPECT_EQ(jfk.peer_hash_nonce_.compare(
     kPayload.substr(kHeaderSize, kNonceLengthInitiator)), 0);
   EXPECT_EQ(jfk.peer_public_key_.compare(
     kPayload.substr(kHeaderSize + kNonceLengthInitiator, kPublicKeySize)), 0);
+
+  // Compute the length of JFK2 message. It must match the sum of it's
+  // compoments
+  std::string jfk2_str(jfk);
+  EXPECT_EQ(jfk2_str.length(), kHeaderSize + kNonceLengthInitiator +
+    Jfk2::kNonceLength + kPublicKeySize + Jfk2::kSignatureSize +
+    kSHA256DigestSize);
 }
 
 }  // namespace crypto
