@@ -1,6 +1,6 @@
 Clone this repository with:
 
-```git clone --recursive```
+```git clone --recursive https://github.com/marmolejo/subzone```
 
 to pull all dependencies as well. If you already have cloned this repository
 non recursively, just do a:
@@ -8,22 +8,9 @@ non recursively, just do a:
 ```git submodule update --init --recursive```
 
 ### Tests
-Note that the only supported platform is Ubuntu 14.10 on x86_64. First, you
-need to install libevent-dev and libicu-dev:
+The best way to run the tests is inside a Docker container, so once installed,
+run:
 
-```sudo apt-get install libevent-dev libicu-dev```
+```docker build .```
 
-To build the tests, first download GN, then build the system.
-
-```
-cd subzone/
-third_party/depot_tools/download_from_google_storage \
-  --bucket chromium-gn -s build/tools/gn.sha1
-build/tools/gn gen out
-third_party/depot_tools/ninja -C out
-```
-
-This will generate a binary file **out/crypto_test**, which contain all tests.
-
-For convenience, you can add ```build/tools``` and ```third_party/depot_tools```
-to PATH environment variable.
+It will automatically run the crypto tests

@@ -203,7 +203,7 @@ template("gcc_toolchain") {
 
     # When invoking this toolchain not as the default one, these args will be
     # passed to the build. They are ignored when this is the default toolchain.
-    toolchain_args() {
+    toolchain_args = {
       cpu_arch = invoker.toolchain_cpu_arch
       os = invoker.toolchain_os
       if (defined(invoker.is_clang)) {
