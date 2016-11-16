@@ -1,6 +1,7 @@
 FROM ubuntu:15.10
 
 RUN apt-get update && apt-get install -y \
+  ca-certificates \
   g++ \
   python \
   libevent-dev \
